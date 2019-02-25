@@ -2,7 +2,7 @@
 
 # Prime Minister
 
-这是一个用于学习的简易 Web 开发框架，使用类似 Spring Boot 的思想，尽量基于 JDk 实现，最少依赖。
+这是一个用于学习的简易 Web 开发框架，使用类似 Spring Boot 的思想，尽量基于 JDK 实现，最少依赖。
 
 ## 功能：
 
@@ -28,6 +28,7 @@
 
 ### Prime Minister
 
+- [ ] IoC 的实现
 - [ ] 注解扫描，全包扫描注解，分类存放到 Context
 - [ ] Context 的完善
 
