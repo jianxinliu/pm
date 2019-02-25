@@ -4,8 +4,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import reflection.annotation.define.Autowired;
-import reflection.annotation.define.URLMapping;
+import com.minister.pm.define.Autowired;
+import com.minister.pm.define.URLMapping;
 
 /**
  * a global object

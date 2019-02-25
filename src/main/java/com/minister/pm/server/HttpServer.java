@@ -7,8 +7,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
 
-import io.nio.my.bean.ResponseBean;
-import io.nio.my.bean.StatuCode;
+import com.minister.pm.server.bean.ResponseBean;
+import com.minister.pm.server.bean.StatuCode;
 
 /**
  *

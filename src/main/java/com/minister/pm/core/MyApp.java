@@ -2,7 +2,7 @@ package com.minister.pm.core;
 
 import java.io.IOException;
 
-import reflection.annotation.server.HttpServer;
+import com.minister.pm.server.HttpServer;
 
 /**
  *
