@@ -10,7 +10,7 @@ import com.minister.pm.server.HttpServer;
  * @Date Feb 22, 2019 12:16:21 AM
  *
  */
-public class MyApp {
+public class PrimeMinister {
 	
 	private Context context;
 	

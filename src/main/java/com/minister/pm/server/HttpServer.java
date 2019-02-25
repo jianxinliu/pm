@@ -9,6 +9,7 @@ import java.util.Date;
 
 import com.minister.pm.server.bean.ResponseBean;
 import com.minister.pm.server.bean.StatuCode;
+import com.minister.pm.util.PMConfig;
 
 /**
  *
@@ -20,7 +21,7 @@ public class HttpServer {
 
 	public static void run() throws IOException {
 		String host = "127.0.0.1";
-		int port = 8080;
+		int port = PMConfig.getPort();
 		ServerSocketChannel ssc = ServerSocketChannel.open();
 		ssc.socket().bind(new InetSocketAddress(host, port));// listen at 127.0.0.1:8080
 		while (true) {

@@ -1,38 +1,44 @@
-package com.minister.pm.core;
+package pm.test.mapping;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map;
+import java.util.Scanner;
 
 import com.minister.pm.define.Autowired;
 import com.minister.pm.define.URLMapping;
 
 /**
- * a global object
- * 
+ *
  * @author ljx
- * @Date Feb 22, 2019 12:35:20 AM
+ * @Date Feb 24, 2019 10:46:12 PM
  *
  */
-public class Context {
+public class Run {
 
-	public Map<String,Object> components;
-	
-	/**
-	 * 路由映射。</br>
-	 * key 的组成：路由。</br>
-	 * 	&nbsp;&nbsp; 路由由上级路由（定义在类体上）和下级路由（定义在方法体上）共同组成</br>
-	 * value 的组成：请求处理器及其所属的类名和请求方法，以：分割</br>
-	 * 	&nbsp;&nbsp; 例如：<code>com.minister.pm.controller.Hello:getUser:GET</code>
-	 */
-	public Map<String,String> mappers;
-	
-	public Scanner scanner = new Scanner();
-	
-	public PrimeMinister pm;
+	@SuppressWarnings("resource")
+	public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException {
 
-	public void autowired(Class clz) throws InstantiationException, IllegalAccessException {
+		Scanner sc = new Scanner(System.in);
+		while (sc.hasNext()) {
+			String url = sc.nextLine().trim();
+			if (!"".equals(url)) {
+				try {
+					String path = mapping(Controller.class, url);
+					System.out.println(path);
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				} catch (InstantiationException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static String mapping(Class clz, String v)
+			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+		String ret = "";
 		Object newInstance = clz.newInstance();
 		// auto wire
 //		if(clz.isAnnotationPresent(Component.class)) {
@@ -48,13 +54,6 @@ public class Context {
 			}
 		}
 //		}
-	}
-
-	// 映射 URL 并执行对应的 handler
-	public String mapping(Class clz, String v)
-			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		String ret = "";
-		Object newInstance = clz.newInstance();
 
 		// url mapping
 		Method[] methods = clz.getMethods();
