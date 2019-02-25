@@ -1,4 +1,4 @@
-package com.minister.pm;
+package com.minister.pm.core;
 
 import java.io.IOException;
 
