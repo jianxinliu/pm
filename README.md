@@ -2,12 +2,13 @@
 
 # Prime Minister
 
-这是一个简易的用于学习的 Web 开发框架，使用类似 Spring Boot 的思想，尽量基于 JDk 实现，最少依赖。
+这是一个用于学习的简易 Web 开发框架，使用类似 Spring Boot 的思想，尽量基于 JDk 实现，最少依赖。
 
 ## 功能：
 
 - 内置简易 Web 服务器,基于 NIO 实现。（待完善）（Server）
 - 内置内存数据库，也可能是对象存储（待实现）（Ship,DSO（data store object））
+- 前端 Mock Server,基于配置的路由和响应
 
 ### 简易 Web 服务器
 
