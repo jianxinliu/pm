@@ -1,5 +1,10 @@
 package com.minister.pm.server.bean;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author ljx
@@ -9,96 +14,109 @@ package com.minister.pm.server.bean;
 public class RequestBean {
 
 	private HttpMethod method;
-	private String host;
+	private String Host;
 	private String url;
 	private String protocol;
-	private String connection;
-	private String userAgent;
-	private String accept;
-	private String acceptEncoding;
-	private String acceptLanguage;
+	private String Connection;
+	private String UserAgent;
+	private String Accept;
+	private String AcceptEncoding;
+	private String AcceptLanguage;
 	private String data;
+
 	public HttpMethod getMethod() {
 		return method;
 	}
-	public void setMethod(HttpMethod method) {
-		this.method = method;
+
+	public void setMethod(String method) {
+		this.method = HttpMethod.valueOf(method);
 	}
+
 	public String getHost() {
-		return host;
+		return Host;
 	}
+
 	public void setHost(String host) {
-		this.host = host;
+		this.Host = host;
 	}
+
 	public String getUrl() {
 		return url;
 	}
+
 	public void setUrl(String url) {
 		this.url = url;
 	}
+
 	public String getConnection() {
-		return connection;
+		return Connection;
 	}
+
 	public void setConnection(String connection) {
-		this.connection = connection;
+		this.Connection = connection;
 	}
+
 	public String getUserAgent() {
-		return userAgent;
+		return UserAgent;
 	}
+
 	public void setUserAgent(String userAgent) {
-		this.userAgent = userAgent;
+		this.UserAgent = userAgent;
 	}
+
 	public String getAccept() {
-		return accept;
+		return Accept;
 	}
+
 	public void setAccept(String accept) {
-		this.accept = accept;
+		this.Accept = accept;
 	}
+
 	public String getAcceptEncoding() {
-		return acceptEncoding;
+		return AcceptEncoding;
 	}
+
 	public void setAcceptEncoding(String acceptEncoding) {
-		this.acceptEncoding = acceptEncoding;
+		this.AcceptEncoding = acceptEncoding;
 	}
+
 	public String getAcceptLanguage() {
-		return acceptLanguage;
+		return AcceptLanguage;
 	}
+
 	public void setAcceptLanguage(String acceptLanguage) {
-		this.acceptLanguage = acceptLanguage;
+		this.AcceptLanguage = acceptLanguage;
 	}
+
 	public String getProtocol() {
 		return protocol;
 	}
+
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
+
 	public String getData() {
 		return data;
 	}
+
 	public void setData(String data) {
 		this.data = data;
 	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(method).append(" ").append(url).append(" ").append(protocol).append("\n");
-		sb.append("Host: ").append(host).append("\n");
-		sb.append("Connection: ").append(connection).append("\n");
-		sb.append("User-Agent: ").append(userAgent).append("\n");
-		sb.append("Accept: ").append(accept).append("\n");
-		sb.append("Accept-Encoding: ").append(acceptEncoding).append("\n");
-		sb.append("Accept-Language: ").append(acceptLanguage).append("\n");
+		sb.append("Host: ").append(Host).append("\n");
+		sb.append("Connection: ").append(Connection).append("\n");
+		sb.append("User-Agent: ").append(UserAgent).append("\n");
+		sb.append("Accept: ").append(Accept).append("\n");
+		sb.append("Accept-Encoding: ").append(AcceptEncoding).append("\n");
+		sb.append("Accept-Language: ").append(AcceptLanguage).append("\n");
 		sb.append("\n");
-		sb.append(data).append("\n");
+		if(data != null)
+			sb.append(data).append("\n");
 		return sb.toString();
-	}
-	
-	public RequestBean parse(String data) {
-		RequestBean ret = new RequestBean();
-		String[] items = data.split("\n");
-		for(int i = 0;i<items.length;i++) {
-			System.out.println(items[i]);
-		}
-		return ret;
 	}
 }

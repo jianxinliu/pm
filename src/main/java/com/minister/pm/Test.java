@@ -1,7 +1,10 @@
 package com.minister.pm;
 
+import java.io.IOException;
+
 import com.minister.pm.core.PrimeMinister;
 import com.minister.pm.define.App;
+import com.minister.pm.server.HttpServer;
 
 /**
  *
@@ -12,6 +15,12 @@ import com.minister.pm.define.App;
 @App
 public class Test {
 	public static void main(String[] args) {
-		PrimeMinister.run();
+//		PrimeMinister.run();
+		HttpServer server = HttpServer.getServer();
+		try {
+			server.run();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

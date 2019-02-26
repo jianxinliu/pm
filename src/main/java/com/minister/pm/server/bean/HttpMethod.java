@@ -28,5 +28,4 @@ public enum HttpMethod {
 	public int getIndex() {
 		return index;
 	}
-	
 }

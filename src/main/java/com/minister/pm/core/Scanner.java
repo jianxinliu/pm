@@ -158,15 +158,14 @@ public class Scanner {
 	 * @throws IllegalAccessException
 	 */
 	public static void letComponentWired(Class clz) throws InstantiationException, IllegalAccessException {
-		Object newInstance = clz.newInstance();
 		// auto wire
-//		if(clz.isAnnotationPresent(Component.class)) {
 		Field[] fields = clz.getDeclaredFields();
 		for (int j = 0; j < fields.length; j++) {
 			Field f = fields[j];
 			if (f.isAnnotationPresent(Autowired.class)) {
 				Class<?> type = f.getType();
 				f.setAccessible(true);
+				Object newInstance = clz.newInstance();
 				if (f.get(newInstance) == null) {
 					f.set(newInstance, type.newInstance());
 				}

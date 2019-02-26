@@ -12,18 +12,23 @@ import com.minister.pm.server.HttpServer;
  */
 public class PrimeMinister {
 	
-	private Context context;
+	private static Context context;
+	private static HttpServer server = HttpServer.getServer();
+	
+	static {
+		context = new Context();
+	}
 	
 	public static void run() {
 		// read @App annotation
-		
+		context.start();
 		// read all annotation
 		
 		// let all things ready
 		
 		// start a Server
 		try {
-			HttpServer.run();
+			server.run();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
