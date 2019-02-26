@@ -19,6 +19,13 @@ import com.minister.pm.server.bean.HttpMethod;
  *
  */
 public class Context {
+	
+	private static Context me = new Context();
+	private Context() {}
+	
+	public static Context getContext() {
+		return me;
+	}
 
 	/**
 	 * Map<clz.getSimpleName(), Class<?> clz>
@@ -97,6 +104,7 @@ public class Context {
 //		String methd = us[0];
 //		String u = us[1];
 		// TODO: 暂时统一把返回值作为 String
+		System.out.println("URL:"+url);
 		String ret = "";
 		for (Entry<String, String> entry : this.mappers.entrySet()) {
 			String k = entry.getKey(),v = entry.getValue();
@@ -114,7 +122,9 @@ public class Context {
 						
 						Method handler = forName.getMethod(handlerMethod, args1);
 						handler.setAccessible(true);
+						// TODO 总是调用出错
 						ret = (String) handler.invoke(forName.newInstance(), args);
+					// TODO： 分析需要抛出的异常，根据异常构建响应码
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					} catch (NoSuchMethodException e) {

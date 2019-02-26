@@ -116,7 +116,7 @@ public class Scanner {
 		int i = 1;
 		// 当前类体上是否由 URLMapping 注解
 		for (Annotation an : clzAnnos) {
-			System.out.println((i++) +"   "+ an.toString());
+//			System.out.println((i++) +"   "+ an.toString());
 			Class<? extends Annotation> annoType = an.annotationType();
 			if (clz.isAnnotationPresent(Component.class)) {
 				ctx.components.put(clz.getSimpleName(), clz);

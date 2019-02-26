@@ -16,7 +16,7 @@ public class PrimeMinister {
 	private static HttpServer server = HttpServer.getServer();
 	
 	static {
-		context = new Context();
+		context = Context.getContext();
 	}
 	
 	public static void run() {
@@ -28,7 +28,7 @@ public class PrimeMinister {
 		
 		// start a Server
 		try {
-			server.run();
+			server.run(context);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

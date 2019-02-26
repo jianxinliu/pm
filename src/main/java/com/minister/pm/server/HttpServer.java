@@ -7,6 +7,9 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
 
+import com.minister.pm.core.Context;
+import com.minister.pm.exception.WrongRequestMethodException;
+import com.minister.pm.server.bean.RequestBean;
 import com.minister.pm.server.bean.ResponseBean;
 import com.minister.pm.server.bean.StatuCode;
 import com.minister.pm.util.HttpUtil;
@@ -19,8 +22,11 @@ import com.minister.pm.util.PMConfig;
  *
  */
 public class HttpServer {
-	
-	private static volatile HttpServer me = new HttpServer();
+	// 即时初始化
+	private static HttpServer me = new HttpServer();
+	private static Context ctx;
+	private static final String HOST = "127.0.0.1";
+	private static final int PORT = PMConfig.getPort();
 	
 	private HttpServer() {}
 	
@@ -28,15 +34,14 @@ public class HttpServer {
 		return me;
 	}
 
-	public void run() throws IOException {
-		String host = "127.0.0.1";
-		int port = PMConfig.getPort();
+	public void run(Context ctx) throws IOException {
+		this.ctx = ctx;
+		
 		ServerSocketChannel ssc = ServerSocketChannel.open();
-		ssc.socket().bind(new InetSocketAddress(host, port));// listen at 127.0.0.1:8080
+		ssc.socket().bind(new InetSocketAddress(HOST, PORT));// listen at 127.0.0.1:8080
 		while (true) {
-			System.out.println("Server listening on " + host + ":" + port + "....\n");
+			System.out.println("Server listening on " + HOST + ":" + PORT + "....\n");
 			SocketChannel socket = ssc.accept();
-			System.out.println("socket:"+socket);
 			ByteBuffer reqBuf = ByteBuffer.allocate(1024);
 
 			socket.read(reqBuf);
@@ -45,40 +50,45 @@ public class HttpServer {
 			while (reqBuf.hasRemaining())
 				sb.append((char) reqBuf.get());
 			String reqText = sb.toString();
+			ResponseBean resp = new ResponseBean();
 			
-			// TODO: 解析请求对象，并做对应的事
-			
-//			GET / HTTP/1.1
-//			Host: localhost:8080
-//			Connection: keep-alive
-//			User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/71.0.3578.98 Chrome/71.0.3578.98 Safari/537.36
-//			Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
-//			Accept-Encoding: gzip, deflate, br
-//			Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
-			
-			// test
-			if(reqText != null)
-				System.out.println(HttpUtil.parse(reqText));
-			reqBuf.clear();
-
+			if(reqText != null) {
+				resp = dispatchRequest(HttpUtil.parse(reqText));
+				reqBuf.clear();
+			}
 			// response
 			ByteBuffer resBuf = ByteBuffer.allocate(1024);
-			
-			String respText = "{\"stu\":[{\"addr\":\"beiji],\"name\":\"lary\"}]}\n";
-			
-			ResponseBean resp = new ResponseBean();
-			resp.setProtocol("HTTP/1.1");
-			resp.setStatu(StatuCode.SUCCESS);
-			resp.setContentType("text/json;charset=UTF-8");
-			resp.setContentLen(String.valueOf(respText.length()));
-			resp.setDate(new Date());
-			resp.setData(respText);
-			
 			resBuf.put(resp.toString().getBytes());
 			resBuf.flip();
 			socket.write(resBuf);
 			socket.close();// state less
 		}
+	}
+	
+	/**
+	 * 解析请求对象，做对应的事
+	 * 返回相应对象
+	 * @param req
+	 */
+	private ResponseBean dispatchRequest(RequestBean req) {
+		ResponseBean ret = new ResponseBean();
+		DispatchRequest dispatch = new DispatchRequest(req,ctx);
+		String data = "";
+		
+		ret.setProtocol("HTTP/1.1");
+		ret.setStatu(StatuCode.SUCCESS);
+		ret.setContentType("text/json;charset=UTF-8");
+		ret.setDate(new Date());
+		try {
+			data = dispatch.urlMapper();
+			ret.setData(data);
+			ret.setContentLen(String.valueOf(data.length()));
+		} catch (WrongRequestMethodException e) {
+			ret.setStatu(StatuCode.SERVER_FAIL);
+			ret.setData(e.getMessage());
+			ret.setContentLen(String.valueOf(e.getMessage().length()));
+		}
+		return ret;
 	}
 
 }
