@@ -55,7 +55,7 @@ public class Util {
 		try {
 			p.load(new FileInputStream(new File("target/classes/"+file)));
 		} catch (IOException e) {
-			e.printStackTrace();
+			return p;
 		}
 		return p;
 	}
