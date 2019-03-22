@@ -12,15 +12,15 @@ import com.minister.pm.log.exception.LogException;
  * @Date Feb 27, 2019 4:55:55 AM
  *
  */
-public class Logger {
+public class Logger implements ILog {
 
-	private static Class<?> clz;
+	private static Class<?> clz = null;
 	private static volatile Logger logger;
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-	private static final String shortName = shortenClsName(clz.getName());
+	private static String shortName = ""; // 短类名
 
 	private Logger(Class<?> clz) {
-		this.clz = clz;
+		Logger.clz = clz;
 	}
 
 	public static Logger getLogger(Class<?> clazz) {
@@ -31,6 +31,7 @@ public class Logger {
 				}
 			}
 		}
+		shortName = shortenClsName(clz.getName());
 		return logger;
 	}
 
@@ -40,23 +41,10 @@ public class Logger {
 	 * @param pattern 模板
 	 * @param args    填入模板的值
 	 */
-	public void debug(String pattern, Object... args) {
+	public void debug(Object pattern, Object... args) {
 		try {
-			System.out.println(parse(pattern,LOGTYPE.DEBUG, args));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * 简单的区别打印，支持模板解析
-	 * 
-	 * @param pattern 模板
-	 * @param args    填入模板的值
-	 */
-	public void warning(String pattern, Object... args) {
-		try {
-			System.out.println(parse(pattern,LOGTYPE.WARNING, args));
+			String ret = parse(pattern, LOGTYPE.DEBUG, args);
+			System.out.println(ret);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -68,9 +56,10 @@ public class Logger {
 	 * @param pattern 模板
 	 * @param args    填入模板的值
 	 */
-	public void error(String pattern, Object... args) {
+	public void warning(Object pattern, Object... args) {
 		try {
-			System.out.println(parse(pattern,LOGTYPE.ERROR, args));
+			String ret = parse(pattern, LOGTYPE.WARNING, args);
+			System.out.println(ret);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -82,27 +71,48 @@ public class Logger {
 	 * @param pattern 模板
 	 * @param args    填入模板的值
 	 */
-	public void info(String pattern, Object... args) {
+	public void error(Object pattern, Object... args) {
 		try {
-			System.out.println(parse(pattern,LOGTYPE.INFO, args));
+			String ret = parse(pattern, LOGTYPE.ERROR, args);
+			System.out.println(ret);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private String parse(String pattern,LOGTYPE type, Object... args) throws Exception {
+	/**
+	 * 简单的区别打印，支持模板解析
+	 * 
+	 * @param pattern 模板
+	 * @param args    填入模板的值
+	 */
+	public void info(Object pattern, Object... args) {
+		try {
+			String ret = parse(pattern, LOGTYPE.INFO, args);
+			System.out.println(ret);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private String parse(Object pattern, LOGTYPE type, Object... args) throws Exception {
 		LogEntity le = new LogEntity();
-		
+
 		le.setTime(sdf.format(new Date()));
 		le.setType(type.getName());
-		le.setExtra(parse0(pattern,args));
+		String extra = pattern.toString();
+		if (pattern instanceof String) {
+			extra = parse0(extra, args);
+		}
+		le.setExtra(extra);
 		le.setClzFull(shortName);
 
 		return le.toString();
 	}
-	
+
 	/**
 	 * 解析日志占位符
+	 * 
 	 * @param pattern
 	 * @param args
 	 * @return
@@ -138,16 +148,17 @@ public class Logger {
 
 	/**
 	 * 短类名
+	 * 
 	 * @param cName com.minister.pm.log.Logger
 	 * @return c.m.p.l.Logger
 	 */
 	private static String shortenClsName(String cName) {
 		StringJoiner sj = new StringJoiner(".");
 		int dotIdx = 0;
-		int dotIdxPre = dotIdx -1 ;
+		int dotIdxPre = dotIdx - 1;
 		int cLen = cName.length();
-		while ((dotIdx = cName.indexOf(".", dotIdxPre+1)) != -1) {
-			sj.add(cName.substring(dotIdxPre+1,dotIdxPre+2));   // 首字母
+		while ((dotIdx = cName.indexOf(".", dotIdxPre + 1)) != -1) {
+			sj.add(cName.substring(dotIdxPre + 1, dotIdxPre + 2)); // 首字母
 			dotIdxPre = dotIdx;
 		}
 		sj.add(cName.substring(cName.lastIndexOf(".") + 1, cLen)); // 类名
@@ -156,7 +167,7 @@ public class Logger {
 
 	public static void main(String[] args) {
 		Logger logger2 = Logger.getLogger(Logger.class);
-		logger2.info("/hello/user start req：{}, {},{}", "Jack", 2, 4, 3);
+		logger2.error("/user/hello start req:{},{},{}", "jack", 2, 5, 6, 4);
 //		System.out.println(logger2.shortenClsName("com.minister.pm.log.Logger"));
 //		String str = "jid.mmk.okod";
 //		System.out.println(str.substring(0, str.indexOf(".", str.indexOf(".") + 1)));
