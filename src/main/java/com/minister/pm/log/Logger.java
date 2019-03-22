@@ -17,6 +17,7 @@ public class Logger {
 	private static Class<?> clz;
 	private static volatile Logger logger;
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+	private static final String shortName = shortenClsName(clz.getName());
 
 	private Logger(Class<?> clz) {
 		this.clz = clz;
@@ -95,7 +96,7 @@ public class Logger {
 		le.setTime(sdf.format(new Date()));
 		le.setType(type.getName());
 		le.setExtra(parse0(pattern,args));
-		le.setClzFull(shortenClsName(clz.getName()));
+		le.setClzFull(shortName);
 
 		return le.toString();
 	}
@@ -140,7 +141,7 @@ public class Logger {
 	 * @param cName com.minister.pm.log.Logger
 	 * @return c.m.p.l.Logger
 	 */
-	private String shortenClsName(String cName) {
+	private static String shortenClsName(String cName) {
 		StringJoiner sj = new StringJoiner(".");
 		int dotIdx = 0;
 		int dotIdxPre = dotIdx -1 ;
