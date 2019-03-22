@@ -1,7 +1,11 @@
 package com.minister.pm.log;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.StringJoiner;
 
 import com.minister.pm.log.exception.LogException;
@@ -74,10 +78,26 @@ public class Logger implements ILog {
 	public void error(Object pattern, Object... args) {
 		try {
 			String ret = parse(pattern, LOGTYPE.ERROR, args);
-			System.out.println(ret);
+			System.err.println(ret);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * 用于异常输出
+	 * 
+	 * @param e
+	 */
+	public void error(Exception e) {
+		error("Cause by: {}",e.getClass().getName());
+		if (e.getCause() != null && e.getCause().toString().length() > 0) {
+			error(e.getCause());
+		}
+		if (e.getMessage() != null && e.getMessage().toString().length() > 0) {
+			error(e.getMessage());
+		}
+		error(e.getStackTrace());
 	}
 
 	/**
@@ -96,18 +116,50 @@ public class Logger implements ILog {
 	}
 
 	private String parse(Object pattern, LOGTYPE type, Object... args) throws Exception {
+		if (pattern == null) {
+			return "";
+		}
 		LogEntity le = new LogEntity();
 
 		le.setTime(sdf.format(new Date()));
 		le.setType(type.getName());
-		String extra = pattern.toString();
-		if (pattern instanceof String) {
-			extra = parse0(extra, args);
-		}
+		String extra = parseObject(pattern, args);
 		le.setExtra(extra);
 		le.setClzFull(shortName);
 
 		return le.toString();
+	}
+
+	/**
+	 * 如果是数组或列表，转换成字符串
+	 * 
+	 * @param obj
+	 * @return
+	 * @throws LogException
+	 */
+	private String parseObject(Object obj, Object... args) throws LogException {
+		String ret = "";
+		if (obj instanceof String) {
+			ret = parse0((String) obj, args);
+		} else if (obj.getClass().isArray()) {
+			StringJoiner sj = new StringJoiner("\n");
+			sj.add("\n");
+			for (int i = 0; i < Array.getLength(obj); i++) {
+				sj.add("    " + Array.get(obj, i).toString());
+			}
+			sj.add("\n");
+			ret = sj.toString();
+		} else if (obj instanceof List) {
+			StringJoiner sj = new StringJoiner("\n");
+			sj.add("\n");
+			List<Object> list = Arrays.asList(obj);
+			list.forEach(l -> {
+				sj.add("    " + l.toString());
+			});
+			sj.add("\n");
+			ret = sj.toString();
+		}
+		return ret;
 	}
 
 	/**
@@ -167,7 +219,20 @@ public class Logger implements ILog {
 
 	public static void main(String[] args) {
 		Logger logger2 = Logger.getLogger(Logger.class);
-		logger2.error("/user/hello start req:{},{},{}", "jack", 2, 5, 6, 4);
+//		logger2.error("/user/hello start req:{},{},{}", "jack", 2, 5, 6, 4);
+//		logger2.info(new int[] { 1, 4, 5, 7, 8 });
+//		logger2.info(Arrays.asList(1, 4, 5, 7, 8));
+//		logger2.info("dkimfnglkl");
+		try {
+			int a = 2 / 0;
+		} catch (Exception e) {
+			System.out.println(e.getClass().getName());
+			System.out.println(e.getCause());
+			System.out.println(e.getMessage());
+			logger2.error(e.getStackTrace());
+			System.out.println(e.getLocalizedMessage());
+		}
+		logger2.info(null);
 //		System.out.println(logger2.shortenClsName("com.minister.pm.log.Logger"));
 //		String str = "jid.mmk.okod";
 //		System.out.println(str.substring(0, str.indexOf(".", str.indexOf(".") + 1)));
