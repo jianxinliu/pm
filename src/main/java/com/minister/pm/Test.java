@@ -1,10 +1,7 @@
 package com.minister.pm;
 
-import java.io.IOException;
-
 import com.minister.pm.core.PrimeMinister;
 import com.minister.pm.define.App;
-import com.minister.pm.server.HttpServer;
 
 /**
  *
