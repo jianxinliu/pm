@@ -41,8 +41,8 @@ public class HttpServer {
 
 		ServerSocketChannel ssc = ServerSocketChannel.open();
 		ssc.socket().bind(new InetSocketAddress(HOST, PORT));// listen at 127.0.0.1:8080
+		logger.info("Server listening on {}:{}....\n", HOST, PORT);
 		while (true) {
-			logger.info("Server listening on {}:{}....\n", HOST, PORT);
 			SocketChannel socket = ssc.accept();
 			ByteBuffer reqBuf = ByteBuffer.allocate(1024);
 
@@ -78,12 +78,17 @@ public class HttpServer {
 		String data = "";
 
 		ret.setProtocol("HTTP/1.1");
-		ret.setStatu(StatuCode.SUCCESS);
 		ret.setContentType("text/json;charset=UTF-8");
 		ret.setDate(new Date());
 		try {
 			data = dispatch.urlMapper();
-			ret.setData(data);
+			if (data != StatuCode.SERVER_FAIL.getName()) {
+				ret.setStatu(StatuCode.SUCCESS);
+				ret.setData(data);
+			} else {
+				ret.setStatu(StatuCode.SERVER_FAIL);
+				ret.setData("");
+			}
 			ret.setContentLen(String.valueOf(data.length()));
 		} catch (WrongRequestMethodException e) {
 			ret.setStatu(StatuCode.SERVER_FAIL);

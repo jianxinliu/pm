@@ -9,7 +9,10 @@ import java.util.Map.Entry;
 import com.minister.pm.define.URLMapping;
 import com.minister.pm.exception.NoSuchUrlHandlerException;
 import com.minister.pm.exception.WrongRequestMethodException;
+import com.minister.pm.log.Logger;
+import com.minister.pm.server.HttpServer;
 import com.minister.pm.server.bean.HttpMethod;
+import com.minister.pm.server.bean.StatuCode;
 
 /**
  * a global object
@@ -99,19 +102,24 @@ public class Context {
 	 * @throws NoSuchUrlHandlerException
 	 * @throws WrongRequestMethodException
 	 */
-	public String letHandlerInvoke(String url, HttpMethod method) throws WrongRequestMethodException {
+	public String letHandlerInvoke(String url, HttpMethod method) {
 //		String[] us = url.split(":");
 //		String methd = us[0];
 //		String u = us[1];
 		// TODO: 暂时统一把返回值作为 String
-		System.out.println("URL:" + url);
+		logger.info("URL:" + url);
 		String ret = "";
 		for (Entry<String, String> entry : this.mappers.entrySet()) {
 			String k = entry.getKey(), v = entry.getValue();
-			if (url.equals(k)) {// 路由直接匹配，需要完全匹配
+			if (url != null && url.equals(k)) {// 路由直接匹配，需要完全匹配
 				String[] split = v.split(":");// 拆分 value -> handleClassName:methodName:requestMethod
 				if (!method.getName().equals(split[2])) {// 如果请求方法不对，则不是这个处理器处理
-					throw new WrongRequestMethodException(split[2], method.getName());
+					try {
+						throw new WrongRequestMethodException(split[2], method.getName());
+					} catch (WrongRequestMethodException e) {
+						logger.error(e);
+						ret = StatuCode.SERVER_FAIL.getName();
+					}
 				} else {// 请求方法正确，开始实例化处理器并且调用
 					String clazz = split[0], handlerMethod = split[1];
 					try {
@@ -121,24 +129,37 @@ public class Context {
 						Class<?>[] args1 = null;
 
 						Method handler = forName.getMethod(handlerMethod, args1);
+
 						handler.setAccessible(true);
-						// TODO 总是调用出错
-						ret = (String) handler.invoke(forName.newInstance(), args);
+						// 总是调用出错,是因为给没有参数的方法传了参数，区别对待就行了
+						if (handler.getParameterCount() > 0) {
+							Object[] params = new Object[handler.getParameterCount()];
+							ret = (String) handler.invoke(forName.newInstance(), params);
+						} else {
+							ret = (String) handler.invoke(forName.newInstance());
+						}
 						// TODO： 分析需要抛出的异常，根据异常构建响应码
 					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
+						logger.error(e);
+						ret = StatuCode.SERVER_FAIL.getName();
 					} catch (NoSuchMethodException e) {
-						e.printStackTrace();
+						logger.error(e);
+						ret = StatuCode.SERVER_FAIL.getName();
 					} catch (SecurityException e) {
-						e.printStackTrace();
+						logger.error(e);
+						ret = StatuCode.SERVER_FAIL.getName();
 					} catch (IllegalAccessException e) {
-						e.printStackTrace();
+						logger.error(e);
+						ret = StatuCode.SERVER_FAIL.getName();
 					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
+						logger.error(e);
+						ret = StatuCode.SERVER_FAIL.getName();
 					} catch (InvocationTargetException e) {
-						e.printStackTrace();
+						logger.error(e);
+						ret = StatuCode.SERVER_FAIL.getName();
 					} catch (InstantiationException e) {
-						e.printStackTrace();
+						logger.error(e);
+						ret = StatuCode.SERVER_FAIL.getName();
 					}
 				}
 			}
@@ -165,4 +186,6 @@ public class Context {
 	public Class<?> getComponents(String clzName) {
 		return (Class<?>) this.components.get(clzName);
 	}
+
+	private static Logger logger = Logger.getLogger(HttpServer.class);
 }
