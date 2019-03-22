@@ -15,7 +15,7 @@ public class ResponseBean {
 	private String contentType;
 	private String contentLen;
 	private Date date;
-	
+
 	private String data;
 
 	public String getProtocol() {
@@ -65,7 +65,7 @@ public class ResponseBean {
 	public void setData(String data) {
 		this.data = data;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

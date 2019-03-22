@@ -35,7 +35,7 @@ public class Run {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	public static String mapping(Class clz, String v)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
 		String ret = "";

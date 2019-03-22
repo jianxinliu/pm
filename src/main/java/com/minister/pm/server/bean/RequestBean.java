@@ -1,10 +1,5 @@
 package com.minister.pm.server.bean;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  *
  * @author ljx
@@ -115,7 +110,7 @@ public class RequestBean {
 		sb.append("Accept-Encoding: ").append(AcceptEncoding).append("\n");
 		sb.append("Accept-Language: ").append(AcceptLanguage).append("\n");
 		sb.append("\n");
-		if(data != null)
+		if (data != null)
 			sb.append(data).append("\n");
 		return sb.toString();
 	}

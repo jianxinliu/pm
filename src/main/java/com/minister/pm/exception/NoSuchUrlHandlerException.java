@@ -8,6 +8,11 @@ package com.minister.pm.exception;
  */
 public class NoSuchUrlHandlerException extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public NoSuchUrlHandlerException(String err) {
 		super(err);
 	}

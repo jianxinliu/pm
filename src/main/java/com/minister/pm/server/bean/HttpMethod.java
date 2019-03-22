@@ -8,15 +8,12 @@ package com.minister.pm.server.bean;
  */
 public enum HttpMethod {
 
-	GET("GET",0)
-	,POST("POST",1)
-	,DELETE("DELETE",2)
-	,PUT("PUT",3);
-	
+	GET("GET", 0), POST("POST", 1), DELETE("DELETE", 2), PUT("PUT", 3);
+
 	private String name;
 	private int index;
-	
-	private HttpMethod(String name,int index) {
+
+	private HttpMethod(String name, int index) {
 		this.name = name;
 		this.index = index;
 	}
@@ -24,7 +21,7 @@ public enum HttpMethod {
 	public String getName() {
 		return name;
 	}
-	
+
 	public int getIndex() {
 		return index;
 	}

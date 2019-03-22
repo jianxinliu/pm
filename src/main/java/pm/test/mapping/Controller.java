@@ -1,6 +1,5 @@
 package pm.test.mapping;
 
-
 import com.minister.pm.define.Autowired;
 import com.minister.pm.define.RestController;
 import com.minister.pm.define.URLMapping;
@@ -14,7 +13,7 @@ import com.minister.pm.define.URLMapping;
 @URLMapping("/jx")
 @RestController()
 public class Controller {
-	
+
 	@Autowired
 	private Service service;
 
@@ -22,12 +21,12 @@ public class Controller {
 	public String getIndex() {
 		return "/html/index.html";
 	}
-	
+
 	@URLMapping("/user")
 	public String getUser() {
 		return "/html/user.html";
 	}
-	
+
 	@URLMapping("/hello")
 	public String hello() {
 		return service.hello();

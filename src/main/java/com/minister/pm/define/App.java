@@ -11,7 +11,12 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(TYPE)
 /**
- * <pre>@App</pre> annotation is to help package Scanner to find the project base path
+ * <pre>
+ * @App
+ * </pre>
+ * 
+ * annotation is to help package Scanner to find the project base path
+ * 
  * @author ljx
  * @Date Feb 22, 2019 12:34:23 AM
  *

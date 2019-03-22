@@ -9,6 +9,7 @@ import java.util.Date;
 
 import com.minister.pm.core.Context;
 import com.minister.pm.exception.WrongRequestMethodException;
+import com.minister.pm.log.Logger;
 import com.minister.pm.server.bean.RequestBean;
 import com.minister.pm.server.bean.ResponseBean;
 import com.minister.pm.server.bean.StatuCode;
@@ -27,20 +28,21 @@ public class HttpServer {
 	private static Context ctx;
 	private static final String HOST = "127.0.0.1";
 	private static final int PORT = PMConfig.getPort();
-	
-	private HttpServer() {}
-	
+
+	private HttpServer() {
+	}
+
 	public static HttpServer getServer() {
 		return me;
 	}
 
 	public void run(Context ctx) throws IOException {
 		this.ctx = ctx;
-		
+
 		ServerSocketChannel ssc = ServerSocketChannel.open();
 		ssc.socket().bind(new InetSocketAddress(HOST, PORT));// listen at 127.0.0.1:8080
 		while (true) {
-			System.out.println("Server listening on " + HOST + ":" + PORT + "....\n");
+			logger.info("Server listening on {}:{}....\n", HOST, PORT);
 			SocketChannel socket = ssc.accept();
 			ByteBuffer reqBuf = ByteBuffer.allocate(1024);
 
@@ -51,8 +53,8 @@ public class HttpServer {
 				sb.append((char) reqBuf.get());
 			String reqText = sb.toString();
 			ResponseBean resp = new ResponseBean();
-			
-			if(reqText != null) {
+
+			if (reqText != null) {
 				resp = dispatchRequest(HttpUtil.parse(reqText));
 				reqBuf.clear();
 			}
@@ -64,17 +66,17 @@ public class HttpServer {
 			socket.close();// state less
 		}
 	}
-	
+
 	/**
-	 * 解析请求对象，做对应的事
-	 * 返回相应对象
+	 * 解析请求对象，做对应的事 返回相应对象
+	 * 
 	 * @param req
 	 */
 	private ResponseBean dispatchRequest(RequestBean req) {
 		ResponseBean ret = new ResponseBean();
-		DispatchRequest dispatch = new DispatchRequest(req,ctx);
+		DispatchRequest dispatch = new DispatchRequest(req, ctx);
 		String data = "";
-		
+
 		ret.setProtocol("HTTP/1.1");
 		ret.setStatu(StatuCode.SUCCESS);
 		ret.setContentType("text/json;charset=UTF-8");
@@ -91,4 +93,5 @@ public class HttpServer {
 		return ret;
 	}
 
+	private static Logger logger = Logger.getLogger(HttpServer.class);
 }

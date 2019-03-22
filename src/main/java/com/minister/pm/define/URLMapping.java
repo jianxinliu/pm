@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 
 @Documented
 @Retention(RUNTIME)
-@Target({ METHOD,TYPE})
+@Target({ METHOD, TYPE })
 /**
  *
  * @author ljx
@@ -19,5 +19,6 @@ import java.lang.annotation.Target;
  */
 public @interface URLMapping {
 	String value(); // URL
+
 	String method() default "GET"; // request method
 }

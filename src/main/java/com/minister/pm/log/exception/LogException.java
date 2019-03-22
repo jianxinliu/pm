@@ -6,7 +6,7 @@ package com.minister.pm.log.exception;
  * @Date Mar 22, 2019 12:52:37 AM
  *
  */
-public class LogException extends Exception{
+public class LogException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 

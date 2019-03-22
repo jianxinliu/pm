@@ -13,6 +13,8 @@ import com.minister.pm.define.Autowired;
 import com.minister.pm.define.Component;
 import com.minister.pm.define.RestController;
 import com.minister.pm.define.URLMapping;
+import com.minister.pm.log.Logger;
+import com.minister.pm.server.HttpServer;
 
 /**
  * package scanner
@@ -33,11 +35,11 @@ public class Scanner {
 ////		convertToJavaPath(Paths.get("/home/ljx/data_code/sts_workspace/pm/src/main/java/com/minister/pm/util/PMConfig.java"));
 //		rootTrval(pwd);
 //	}
-	
+
 	public Scanner(Context ctx) {
 		this.ctx = ctx;
 	}
-	
+
 	public Context run() {
 		rootTrval(pwd);
 		return ctx;
@@ -58,7 +60,7 @@ public class Scanner {
 						String javaPath = convertToJavaPath(path);
 						try {
 							Class<?> clz = Class.forName(javaPath);
-							System.out.println(clz.getName());
+							logger.info(clz.getName());
 							findClassAnnotation(clz);
 						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 							e.printStackTrace();
@@ -102,7 +104,7 @@ public class Scanner {
 	 */
 	private static void findClassAnnotation(Class<?> clz) throws InstantiationException, IllegalAccessException {
 		letComponentWired(clz);
-		
+
 		Annotation[] clzAnnos = clz.getAnnotations();
 		URLMapping classReqMap = clz.getAnnotation(URLMapping.class);
 		String reqMethod = "";
@@ -122,7 +124,7 @@ public class Scanner {
 				ctx.components.put(clz.getSimpleName(), clz);
 			} else if (clz.isAnnotationPresent(RestController.class)) {
 				Method[] methods = clz.getMethods();
-				
+
 				for (Method m : methods) {
 					if (m.isAnnotationPresent(URLMapping.class)) {
 						URLMapping mtdAnno = m.getAnnotation(URLMapping.class);
@@ -146,13 +148,13 @@ public class Scanner {
 				}
 			} else if (clz.isAnnotationPresent(App.class)) {
 
-			} 
+			}
 		}
 	}
-	
+
 	/**
-	 * 自动植入被依赖的组件
-	 * TODO: 从 Components 列表中查找，若没有则报异常
+	 * 自动植入被依赖的组件 TODO: 从 Components 列表中查找，若没有则报异常
+	 * 
 	 * @param clz
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
@@ -173,4 +175,5 @@ public class Scanner {
 		}
 	}
 
+	private static Logger logger = Logger.getLogger(HttpServer.class);
 }

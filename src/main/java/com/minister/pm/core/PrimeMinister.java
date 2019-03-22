@@ -11,21 +11,21 @@ import com.minister.pm.server.HttpServer;
  *
  */
 public class PrimeMinister {
-	
+
 	private static Context context;
 	private static HttpServer server = HttpServer.getServer();
-	
+
 	static {
 		context = Context.getContext();
 	}
-	
+
 	public static void run() {
 		// read @App annotation
 		context.start();
 		// read all annotation
-		
+
 		// let all things ready
-		
+
 		// start a Server
 		try {
 			server.run(context);
