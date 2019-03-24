@@ -10,7 +10,7 @@ import java.util.StringJoiner;
 import com.minister.pm.log.exception.LogException;
 
 /**
- *
+ * 
  * @author ljx
  * @Date Feb 27, 2019 4:55:55 AM
  *
@@ -20,21 +20,28 @@ public class Logger implements ILog {
 	private static Class<?> clz = null;
 	private static volatile Logger logger;
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-	private static String shortName = ""; // 短类名
+	private String shortName = ""; // 短类名
 
 	private Logger(Class<?> clz) {
 		Logger.clz = clz;
+		shortName = shortenClsName(clz.getName());
 	}
 
 	public static Logger getLogger(Class<?> clazz) {
-		if (logger == null) {
-			synchronized (Logger.class) {
-				if (logger == null) {
-					logger = new Logger(clazz);
-				}
-			}
-		}
-		shortName = shortenClsName(clz.getName());
+//		if (logger == null) {
+//			synchronized (Logger.class) {
+//				if (logger == null) {
+//					logger = new Logger(clazz);
+//				}
+//			}
+//		}else if(clazz.getName() != clz.getName()) {  // 切换 Logger 类，同样需要创建新的 Logger 实例
+//			logger = new Logger(clazz);
+//		}
+		
+		/**
+		 * 现在是给每个对象创建一个 log 对象，如果有需要，将 log 単例化，不同的对象名可以进行 Map 缓存，只是切换名字而已，不需要新创建对象
+		 */
+		logger = new Logger(clazz);
 		return logger;
 	}
 
@@ -89,7 +96,7 @@ public class Logger implements ILog {
 	 * @param e
 	 */
 	public void error(Exception e) {
-		error("Cause by: {}\n",e.getClass().getName());
+		error("Cause by: {}\n", e.getClass().getName());
 		if (e.getCause() != null && e.getCause().toString().length() > 0) {
 			error(e.getCause());
 		}

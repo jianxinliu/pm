@@ -1,5 +1,7 @@
 package com.minister.pm.log;
 
+import com.minister.pm.util.TextUtil;
+
 /**
  * 日志实体
  * 
@@ -69,23 +71,20 @@ public class LogEntity {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
+		time = textUtil.extendTo(time,24);
 		builder.append(time);
 		builder.append("  ");
+		type = textUtil.extendTo(type,8);
 		builder.append(type);
-		builder.append("  [");
-
-		if (clzFull.length() < clsPathMaxLen) {
-			StringBuffer sb = new StringBuffer();
-			for (int i = 0; i < clsPathMaxLen - clzFull.length(); i++) {
-				sb.append(" ");
-			}
-			clzFull += sb.toString();
-		}
+		builder.append(" --- [");
+		
+		clzFull = textUtil.extendTo(clzFull,clsPathMaxLen);
 		builder.append(clzFull);
 
-		builder.append("]  ");
+		builder.append("] : ");
 		builder.append(extra);
 		return builder.toString();
 	}
-
+	
+	private TextUtil textUtil = new TextUtil();
 }

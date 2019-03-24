@@ -187,5 +187,5 @@ public class Context {
 		return (Class<?>) this.components.get(clzName);
 	}
 
-	private static Logger logger = Logger.getLogger(HttpServer.class);
+	private static Logger logger = Logger.getLogger(Context.class);
 }
