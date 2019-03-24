@@ -2,7 +2,6 @@ package com.minister.pm.log;
 
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -90,7 +89,7 @@ public class Logger implements ILog {
 	 * @param e
 	 */
 	public void error(Exception e) {
-		error("Cause by: {}",e.getClass().getName());
+		error("Cause by: {}\n",e.getClass().getName());
 		if (e.getCause() != null && e.getCause().toString().length() > 0) {
 			error(e.getCause());
 		}

@@ -13,11 +13,5 @@ import com.minister.pm.define.App;
 public class Test {
 	public static void main(String[] args) {
 		PrimeMinister.run();
-//		HttpServer server = HttpServer.getServer();
-//		try {
-//			server.run();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
 	}
 }

@@ -60,7 +60,7 @@ public class Scanner {
 						String javaPath = convertToJavaPath(path);
 						try {
 							Class<?> clz = Class.forName(javaPath);
-							logger.info(clz.getName());
+							logger.info(clz.getName()); // 大一扫描到的类，不必要
 							findClassAnnotation(clz);
 						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 							e.printStackTrace();
@@ -118,7 +118,6 @@ public class Scanner {
 		int i = 1;
 		// 当前类体上是否由 URLMapping 注解
 		for (Annotation an : clzAnnos) {
-//			System.out.println((i++) +"   "+ an.toString());
 			Class<? extends Annotation> annoType = an.annotationType();
 			if (clz.isAnnotationPresent(Component.class)) {
 				ctx.components.put(clz.getSimpleName(), clz);
@@ -144,6 +143,7 @@ public class Scanner {
 						// mappers的 key:路由---由上级路由加下级路由组成
 						// mappers的 value:处理器+请求方法，以 ： 分割
 						ctx.mappers.put(url, handlerName + ":" + reqMethod);
+						logger.info("Mapped url:{} to Handler:{}", url,clz.getName() + "." + m.getName());
 					}
 				}
 			} else if (clz.isAnnotationPresent(App.class)) {
