@@ -13,8 +13,8 @@ import com.minister.pm.define.Autowired;
 import com.minister.pm.define.Component;
 import com.minister.pm.define.RestController;
 import com.minister.pm.define.URLMapping;
+import com.minister.pm.exception.InjectionException;
 import com.minister.pm.log.Logger;
-import com.minister.pm.server.HttpServer;
 
 /**
  * package scanner
@@ -31,13 +31,8 @@ public class Scanner {
 	// 应该以 @App 注解所在的类的位置开始扫描全包
 	private static String pwd = System.getProperty("user.dir") + "/src/main/java";/// home/ljx/data_code/sts_workspace/pm
 
-//	public static void main(String[] args) throws IOException {
-////		convertToJavaPath(Paths.get("/home/ljx/data_code/sts_workspace/pm/src/main/java/com/minister/pm/util/PMConfig.java"));
-//		rootTrval(pwd);
-//	}
-
-	public Scanner(Context ctx) {
-		this.ctx = ctx;
+	public Scanner(Context context) {
+		ctx = context;
 	}
 
 	public Context run() {
@@ -62,7 +57,7 @@ public class Scanner {
 							Class<?> clz = Class.forName(javaPath);
 							logger.info(clz.getName()); // 打印扫描到的类，不必要
 							findClassAnnotation(clz);
-						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InjectionException e) {
 							e.printStackTrace();
 						}
 					}
@@ -101,78 +96,99 @@ public class Scanner {
 	 * @param clz 类
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
+	 * @throws InjectionException 
 	 */
-	private static void findClassAnnotation(Class<?> clz) throws InstantiationException, IllegalAccessException {
-		letComponentWired(clz);
-
+	private static void findClassAnnotation(Class<?> clz) throws InstantiationException, IllegalAccessException, InjectionException {
 		Annotation[] clzAnnos = clz.getAnnotations();
 		URLMapping classReqMap = clz.getAnnotation(URLMapping.class);
 		String reqMethod = "";
 		String pUrl = "";
-		// 如果类体定义了 URLMapping 则次类内的所有方法接受的请求类型均为此注解指定的方法
+		// 如果类体定义了 URLMapping 则此类内的所有方法接受的请求类型均为此注解指定的方法
 		if (classReqMap != null) {
 			// 方法内不再查看 URLMapping 的请求方法
 			reqMethod = classReqMap.method();
 			pUrl = classReqMap.value();
 		}
-		int i = 1;
 		// 当前类体上是否由 URLMapping 注解
-		for (Annotation an : clzAnnos) {
-			Class<? extends Annotation> annoType = an.annotationType();
-			if (clz.isAnnotationPresent(Component.class)) {
-				ctx.components.put(clz.getSimpleName(), clz);
-			} else if (clz.isAnnotationPresent(RestController.class)) {
-				Method[] methods = clz.getMethods();
+		if (clz.isAnnotationPresent(Component.class)) {
+			ctx.components.put(clz.getTypeName(), clz.newInstance()); // Component 组件集合
+		} else if (clz.isAnnotationPresent(RestController.class)) {
+			ctx.components.put(clz.getTypeName(), clz.newInstance()); // Component 组件集合
+			Method[] methods = clz.getMethods();
 
-				for (Method m : methods) {
-					if (m.isAnnotationPresent(URLMapping.class)) {
-						URLMapping mtdAnno = m.getAnnotation(URLMapping.class);
-						String url = "";
-						// 下级路由，定义在方法上
-						String sUrl = mtdAnno.value();
-						// 如果有上级路由，则将下级路由拼接在上级路由之后
-						if (classReqMap != null) {
-							url = pUrl + sUrl;
-						} else {
-							// 没有定义上级路由，则方法的路由作为最终路由，方法的请求方法作为最终请求方法
-							reqMethod = mtdAnno.method();
-							url = sUrl;
-						}
-						// 路由处理器的类名加方法名，以 ： 分割
-						String handlerName = clz.getName() + ":" + m.getName();
-						// mappers的 key:路由---由上级路由加下级路由组成
-						// mappers的 value:处理器+请求方法，以 ： 分割
-						ctx.mappers.put(url, handlerName + ":" + reqMethod);
-						logger.info("Mapped url:[{}] to :{}()", url,clz.getName() + "." + m.getName());
+			for (Method m : methods) {
+				if (m.isAnnotationPresent(URLMapping.class)) {
+					URLMapping mtdAnno = m.getAnnotation(URLMapping.class);
+					String url = "";
+					// 下级路由，定义在方法上
+					String sUrl = mtdAnno.value();
+					// 如果有上级路由，则将下级路由拼接在上级路由之后
+					if (classReqMap != null) {
+						url = pUrl + sUrl;
+					} else {
+						// 没有定义上级路由，则方法的路由作为最终路由，方法的请求方法作为最终请求方法
+						reqMethod = mtdAnno.method();
+						url = sUrl;
 					}
+					// 路由处理器的类名加方法名，以 ： 分割
+					String handlerName = clz.getName() + ":" + m.getName();
+					// mappers 的 key:路由---由上级路由加下级路由组成
+					// mappers 的 value:处理器+请求方法，以 ： 分割
+					ctx.mappers.put(url, handlerName + ":" + reqMethod);
+					logger.info("Mapped url:[{}] to :{}.{}()", url, clz.getName(), m.getName());
 				}
-			} else if (clz.isAnnotationPresent(App.class)) {
-
 			}
+		} else if (clz.isAnnotationPresent(App.class)) {
+
 		}
+		// 将当前类中需要注入的组件注入
+		letComponentWired(clz);
 	}
 
 	/**
-	 * 自动植入被依赖的组件 TODO: 从 Components 列表中查找，若没有则报异常
+	 * 自动植入被依赖的组件. 从 Components 列表中查找，若没有则报异常
 	 * 
 	 * @param clz
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
+	 * @throws InjectionException 
 	 */
-	public static void letComponentWired(Class clz) throws InstantiationException, IllegalAccessException {
+	public static void letComponentWired(Class<?> clz) throws IllegalAccessException, InjectionException {
 		// auto wire
+		Object newInstance = null;
+		Object targetInstance = null;
 		Field[] fields = clz.getDeclaredFields();
 		for (int j = 0; j < fields.length; j++) {
 			Field f = fields[j];
 			if (f.isAnnotationPresent(Autowired.class)) {
 				Class<?> type = f.getType();
-				f.setAccessible(true);
-				Object newInstance = clz.newInstance();
-				if (f.get(newInstance) == null) {
-					f.set(newInstance, type.newInstance());
+				// 从 ctx.components 中查找需要的组件，不存在则报找不到组件的错误
+				targetInstance = ctx.components.get(type.getName());
+				newInstance = ctx.components.get(clz.getName());
+				if (targetInstance != null) {
+					f.setAccessible(true);
+					if (f.get(newInstance) == null) {
+						f.set(newInstance, targetInstance);
+					}
+				} else {
+					// 注入错误
+					throw new InjectionException("目标组件:"+type.getName()+"不存在!");
 				}
 			}
 		}
+	}
+
+	/**
+	 * 查看当前需要注入的组件是否被扫描（需要的组件是否加了 @Component注解）
+	 * 
+	 * @param clzName
+	 * @return
+	 */
+	private Class<?> clzInComponents(String clzName) {
+		ctx.components.entrySet().forEach(c -> {
+
+		});
+		return null;
 	}
 
 	private static Logger logger = Logger.getLogger(Scanner.class);
