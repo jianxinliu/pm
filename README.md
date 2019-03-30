@@ -7,6 +7,7 @@
 - 内置简易 Web 服务器,基于 NIO 实现。（待完善）（Server）
 - 内置内存数据库，也可能是对象存储（待实现）（Ship,DSO（data store object））
 - 前端 Mock Server,基于配置的路由和响应（待实现）
+- json 解析器（待实现）
 
 ### 简易 Web 服务器
 

@@ -24,6 +24,7 @@ public class Controller {
 
 	@URLMapping("/user")
 	public String getUser() {
+		System.out.println("service:"+service);
 		return "/html/user.html";
 	}
 
@@ -31,4 +32,6 @@ public class Controller {
 	public String hello() {
 		return service.hello();
 	}
+	
+	
 }

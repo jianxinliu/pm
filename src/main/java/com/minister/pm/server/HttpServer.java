@@ -29,15 +29,14 @@ public class HttpServer {
 	private static final String HOST = "127.0.0.1";
 	private static final int PORT = PMConfig.getPort();
 
-	private HttpServer() {
-	}
+	private HttpServer() {}
 
 	public static HttpServer getServer() {
 		return me;
 	}
 
-	public void run(Context ctx) throws IOException {
-		this.ctx = ctx;
+	public void run(Context context) throws IOException {
+		ctx = context;
 
 		ServerSocketChannel ssc = ServerSocketChannel.open();
 		ssc.socket().bind(new InetSocketAddress(HOST, PORT));// listen at 127.0.0.1:8080

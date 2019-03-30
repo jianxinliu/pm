@@ -33,7 +33,7 @@ public class Context {
 	}
 
 	/**
-	 * Map<clz.getSimpleName(), Class<?> clz>
+	 * Map<clz.getTypeName(), componentInstance>
 	 */
 	public Map<String, Object> components = new HashMap<String, Object>();
 
@@ -54,8 +54,6 @@ public class Context {
 		Context ctx = scanner.run();
 		this.components = ctx.components;
 		this.mappers = ctx.mappers;
-//		parseMappers();
-//		showComponents();
 	}
 
 	// 映射 URL 并执行对应的 handler
@@ -86,16 +84,6 @@ public class Context {
 	}
 
 	/**
-	 * 将 Scanner 扫描并组装出来的 Mappers 解析出来
-	 */
-	@Deprecated
-	private void parseMappers() {
-		this.mappers.forEach((k, v) -> {
-			System.out.println(k + "____" + v);
-		});
-	}
-
-	/**
 	 * 根据请求路由获取一个处理器 直接执行
 	 * 
 	 * @param url
@@ -103,45 +91,43 @@ public class Context {
 	 * @throws WrongRequestMethodException
 	 */
 	public String letHandlerInvoke(String url, HttpMethod method) {
-//		String[] us = url.split(":");
-//		String methd = us[0];
-//		String u = us[1];
 		// TODO: 暂时统一把返回值作为 String
 		logger.info("URL:{}\n", url);
 		String ret = "";
 		for (Entry<String, String> entry : this.mappers.entrySet()) {
 			String k = entry.getKey(), v = entry.getValue();
-			if (url != null && url.equals(k)) {// 路由直接匹配，需要完全匹配
-				String[] split = v.split(":");// 拆分 value -> handleClassName:methodName:requestMethod
-				if (!method.getName().equals(split[2])) {// 如果请求方法不对，则不是这个处理器处理
+			// 路由直接匹配，需要完全匹配
+			if (url != null && url.equals(k)) {
+				// 拆分 value -> handleClassName:methodName:requestMethod
+				String[] split = v.split(":");
+				// 如果请求方法不对，则不是这个处理器处理
+				if (!method.getName().equals(split[2])) {
 					try {
 						throw new WrongRequestMethodException(split[2], method.getName());
 					} catch (WrongRequestMethodException e) {
 						logger.error(e);
 						ret = StatuCode.SERVER_FAIL.getName();
 					}
-				} else {// 请求方法正确，开始实例化处理器并且调用
+				} else {
+					// 请求方法正确，开始实例化处理器并且调用
+					
 					String clazz = split[0], handlerMethod = split[1];
 					try {
-						Class<?> forName = Class.forName(clazz);
+						Object obj = this.components.get(clazz);
 						// TODO： 暂时都当做没有参数的 handler 处理
-						Object[] args = null;
 						Class<?>[] args1 = null;
 
-						Method handler = forName.getMethod(handlerMethod, args1);
+						Method handler = obj.getClass().getMethod(handlerMethod, args1);
 
 						handler.setAccessible(true);
 						// 总是调用出错,是因为给没有参数的方法传了参数，区别对待就行了
 						if (handler.getParameterCount() > 0) {
 							Object[] params = new Object[handler.getParameterCount()];
-							ret = (String) handler.invoke(forName.newInstance(), params);
+							ret = (String) handler.invoke(obj, params);
 						} else {
-							ret = (String) handler.invoke(forName.newInstance());
+							ret = (String) handler.invoke(obj);
 						}
 						// TODO： 分析需要抛出的异常，根据异常构建响应码
-					} catch (ClassNotFoundException e) {
-						logger.error(e);
-						ret = StatuCode.SERVER_FAIL.getName();
 					} catch (NoSuchMethodException e) {
 						logger.error(e);
 						ret = StatuCode.SERVER_FAIL.getName();
@@ -157,9 +143,6 @@ public class Context {
 					} catch (InvocationTargetException e) {
 						logger.error(e);
 						ret = StatuCode.SERVER_FAIL.getName();
-					} catch (InstantiationException e) {
-						logger.error(e);
-						ret = StatuCode.SERVER_FAIL.getName();
 					}
 				}
 			}
@@ -168,23 +151,13 @@ public class Context {
 	}
 
 	/**
-	 * 查看当前 Context 中的所有组件
-	 */
-	@Deprecated
-	private void showComponents() {
-		this.components.forEach((clzName, clz) -> {
-			System.out.println(clzName);
-		});
-	}
-
-	/**
-	 * 从 components 列表中获取一个组件
+	 * 从 components 列表中获取一个组件实例
 	 * 
 	 * @param clzName
 	 * @return
 	 */
-	public Class<?> getComponents(String clzName) {
-		return (Class<?>) this.components.get(clzName);
+	public Object getComponents(String clzName) {
+		return this.components.get(clzName);
 	}
 
 	private static Logger logger = Logger.getLogger(Context.class);
