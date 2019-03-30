@@ -107,7 +107,7 @@ public class Context {
 //		String methd = us[0];
 //		String u = us[1];
 		// TODO: 暂时统一把返回值作为 String
-		logger.info("URL:" + url);
+		logger.info("URL:{}\n", url);
 		String ret = "";
 		for (Entry<String, String> entry : this.mappers.entrySet()) {
 			String k = entry.getKey(), v = entry.getValue();

@@ -93,8 +93,31 @@ public class Service {
 
 2. 访问
 
-![/pm/index](http://ww1.sinaimg.cn/large/0076TGp9gy1g1kp1p7peej30a102p0sn.jpg)
+```shell
+~$ curl http://localhost:8080/pm/index
+/html/index.html
+```
 
 3. 错误打印
 
-![error](http://ww1.sinaimg.cn/large/0076TGp9gy1g1kp50fhesj30t70aptaz.jpg)
+```
+2019-03-29 21:24:17.809   INFO     --- [c.m.p.c.Context               ] : URL:/pm/hello
+2019-03-29 21:24:17.811   ERROR    --- [c.m.p.c.Context               ] : Cause by: java.lang.reflect.InvocationTargetException
+
+
+2019-03-29 21:24:17.811   ERROR    --- [c.m.p.c.Context               ] : 
+2019-03-29 21:24:17.812   ERROR    --- [c.m.p.c.Context               ] : 
+
+    sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    java.lang.reflect.Method.invoke(Method.java:498)
+    com.minister.pm.core.Context.letHandlerInvoke(Context.java:139)
+    com.minister.pm.server.DispatchRequest.urlMapper(DispatchRequest.java:39)
+    com.minister.pm.server.HttpServer.dispatchRequest(HttpServer.java:84)
+    com.minister.pm.server.HttpServer.run(HttpServer.java:58)
+    com.minister.pm.core.PrimeMinister.run(PrimeMinister.java:31)
+    pmtest.PmTestApplication.main(PmTestApplication.java:16)
+
+```
+
