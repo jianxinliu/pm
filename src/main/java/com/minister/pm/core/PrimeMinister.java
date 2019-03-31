@@ -3,6 +3,7 @@ package com.minister.pm.core;
 import java.io.IOException;
 
 import com.minister.pm.server.HttpServer;
+import com.minister.pm.util.BannerUtil;
 
 /**
  *
@@ -20,6 +21,7 @@ public class PrimeMinister {
 	}
 
 	public static void run() {
+		BannerUtil.printBanner();
 		// read @App annotation
 		context.start();
 		// read all annotation

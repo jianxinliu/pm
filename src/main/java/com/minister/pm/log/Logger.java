@@ -120,6 +120,14 @@ public class Logger implements ILog {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * 平常打印，只是之后可以和日志统一输出到指定目标
+	 * @param text
+	 */
+	public void plantInfo(char text) {
+		System.out.print(text);
+	}
 
 	private String parse(Object pattern, LOGTYPE type, Object... args) throws Exception {
 		if (pattern == null) {
