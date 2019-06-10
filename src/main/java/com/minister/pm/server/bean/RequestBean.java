@@ -1,5 +1,7 @@
 package com.minister.pm.server.bean;
 
+import com.minister.pm.core.Context;
+
 /**
  *
  * @author ljx
@@ -7,6 +9,8 @@ package com.minister.pm.server.bean;
  *
  */
 public class RequestBean {
+	
+	private Context context;
 
 	private HttpMethod method;
 	private String Host;
@@ -97,6 +101,10 @@ public class RequestBean {
 
 	public void setData(String data) {
 		this.data = data;
+	}
+	
+	public Context getContext() {
+		return context;
 	}
 
 	@Override

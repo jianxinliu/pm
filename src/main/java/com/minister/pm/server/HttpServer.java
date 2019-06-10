@@ -29,7 +29,8 @@ public class HttpServer {
 	private static final String HOST = "127.0.0.1";
 	private static final int PORT = PMConfig.getPort();
 
-	private HttpServer() {}
+	private HttpServer() {
+	}
 
 	public static HttpServer getServer() {
 		return me;
