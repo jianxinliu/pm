@@ -39,6 +39,7 @@ public class PmTestApplication {
 	public static void main(String[] args) {
 		PrimeMinister.run();
 	}
+	
 }
 ```
 

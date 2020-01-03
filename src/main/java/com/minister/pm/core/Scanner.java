@@ -82,7 +82,7 @@ public class Scanner {
 		ret = p.substring(0, dot);
 
 		// 去掉包名前缀
-		// TODO: dump way
+		// TODO: dumb way
 		ret = ret.substring(ret.indexOf("/java/") + 6, ret.length());
 
 		// 斜杠换成 .
