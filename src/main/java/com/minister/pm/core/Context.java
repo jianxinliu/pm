@@ -10,7 +10,6 @@ import com.minister.pm.define.URLMapping;
 import com.minister.pm.exception.NoSuchUrlHandlerException;
 import com.minister.pm.exception.WrongRequestMethodException;
 import com.minister.pm.log.Logger;
-import com.minister.pm.server.HttpServer;
 import com.minister.pm.server.bean.HttpMethod;
 import com.minister.pm.server.bean.StatuCode;
 
@@ -36,6 +35,20 @@ public class Context {
 	 * Map<clz.getTypeName(), componentInstance>
 	 */
 	public Map<String, Object> components = new HashMap<String, Object>();
+	
+	/**
+	 * simple beans map.</br>
+	 * Map<a,b>.</br>
+	 * 	a should be bean name,b should be bean obejct or bean value.</br>
+	 * Bean name default to be variable name.
+	 */
+	public Map<String,Object> beans = new HashMap<String,Object>();
+	
+	/**
+	 * cache file path.</br>
+	 * config file
+	 */
+	public Map<String,String> files = new HashMap<String,String>();
 
 	/**
 	 * 路由映射。</br>
@@ -54,6 +67,8 @@ public class Context {
 		Context ctx = scanner.run();
 		this.components = ctx.components;
 		this.mappers = ctx.mappers;
+		this.beans = ctx.beans;
+		this.files = ctx.files;
 	}
 
 	// 映射 URL 并执行对应的 handler

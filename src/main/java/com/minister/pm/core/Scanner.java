@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.minister.pm.config.ConfigReader;
 import com.minister.pm.define.App;
 import com.minister.pm.define.Autowired;
 import com.minister.pm.define.Component;
@@ -31,6 +32,8 @@ public class Scanner {
 	// 应该以 @App 注解所在的类的位置开始扫描全包
 	private static String pwd = System.getProperty("user.dir") + "/src/main/java";/// home/ljx/data_code/sts_workspace/pm
 
+	private static ConfigReader cfgReader = new ConfigReader(ctx);
+	
 	public Scanner(Context context) {
 		ctx = context;
 	}

@@ -128,6 +128,10 @@ public class Logger implements ILog {
 	public void plantInfo(char text) {
 		System.out.print(text);
 	}
+	
+	public void plantInfo(String string) {
+		System.out.print(string);
+	}
 
 	private String parse(Object pattern, LOGTYPE type, Object... args) throws Exception {
 		if (pattern == null) {
@@ -253,5 +257,4 @@ public class Logger implements ILog {
 //		System.out.println(str.substring(str.lastIndexOf(".") + 1, str.length()));
 //		System.out.println(new String(str.toCharArray(), 0, 1));
 	}
-
 }

@@ -1,7 +1,10 @@
 package com.minister.pm.core;
 
 import java.io.IOException;
+import java.util.Map.Entry;
 
+import com.minister.pm.config.ConfigReader;
+import com.minister.pm.log.Logger;
 import com.minister.pm.server.HttpServer;
 import com.minister.pm.util.BannerUtil;
 
@@ -19,8 +22,21 @@ public class PrimeMinister {
 	static {
 		context = Context.getContext();
 	}
+	
+	private static ConfigReader cfgReader = new ConfigReader(context);
 
 	public static void run() {
+		
+		// read config
+		cfgReader.findFile();
+		
+		// test
+		for(Entry<String, Object> ent:context.beans.entrySet()){
+			String key = ent.getKey();
+			Object value = ent.getValue();
+			logger.info("entity:key={},value={}", key,value);
+		}
+		
 		BannerUtil.printBanner();
 		// read @App annotation
 		context.start();
@@ -35,4 +51,6 @@ public class PrimeMinister {
 			e.printStackTrace();
 		}
 	}
+	
+	private static Logger logger = Logger.getLogger(PrimeMinister.class);
 }

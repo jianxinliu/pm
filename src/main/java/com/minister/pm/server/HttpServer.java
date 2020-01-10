@@ -10,6 +10,7 @@ import java.util.Date;
 import com.minister.pm.core.Context;
 import com.minister.pm.exception.WrongRequestMethodException;
 import com.minister.pm.log.Logger;
+import com.minister.pm.magic.MagicWords;
 import com.minister.pm.server.bean.RequestBean;
 import com.minister.pm.server.bean.ResponseBean;
 import com.minister.pm.server.bean.StatuCode;
@@ -26,7 +27,6 @@ public class HttpServer {
 	// 即时初始化
 	private static HttpServer me = new HttpServer();
 	private static Context ctx;
-	private static final String HOST = "127.0.0.1";
 	private static final int PORT = PMConfig.getPort();
 
 	private HttpServer() {
@@ -39,9 +39,14 @@ public class HttpServer {
 	public void run(Context context) throws IOException {
 		ctx = context;
 
+//		// 从配置文件拿
+//		int PORT = (int) this.ctx.beans.get("host");
+
 		ServerSocketChannel ssc = ServerSocketChannel.open();
-		ssc.socket().bind(new InetSocketAddress(HOST, PORT));// listen at 127.0.0.1:8080
-		logger.info("Server listening on {}:{}....\n", HOST, PORT);
+		ssc.socket().bind(new InetSocketAddress(MagicWords.HOST.getName(), PORT));// listen
+																					// at
+																					// 127.0.0.1:8080
+		logger.info("Server listening on {}:{}....\n", MagicWords.HOST.getName(), PORT);
 		while (true) {
 			SocketChannel socket = ssc.accept();
 			ByteBuffer reqBuf = ByteBuffer.allocate(1024);
