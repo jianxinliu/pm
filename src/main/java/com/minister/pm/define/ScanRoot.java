@@ -6,15 +6,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+
 /**
  * 包扫描根路径
  * @author ljx
  * @Date Mar 23, 2019 7:08:13 PM
  *
  */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface ScanRoot {
 
 	/**

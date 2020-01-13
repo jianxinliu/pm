@@ -1,4 +1,4 @@
-package com.minister.pm.define;
+package com.minister.pm.define.config;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
@@ -17,7 +17,6 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target({ FIELD, LOCAL_VARIABLE })
 public @interface Value {
-
 	/**
 	 * 获取配置值的值路径
 	 * @return

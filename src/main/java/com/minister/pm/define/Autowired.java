@@ -8,9 +8,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-@Documented
-@Retention(RUNTIME)
-@Target({ FIELD, LOCAL_VARIABLE })
 /**
  * auto wired simulation
  * 
@@ -18,6 +15,9 @@ import java.lang.annotation.Target;
  * @Date Feb 21, 2019 11:41:09 PM
  *
  */
+@Documented
+@Retention(RUNTIME)
+@Target({ FIELD, LOCAL_VARIABLE })
 public @interface Autowired {
 
 }

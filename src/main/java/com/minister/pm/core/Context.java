@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.minister.pm.define.URLMapping;
+import com.minister.pm.define.config.ConfigItem;
 import com.minister.pm.exception.NoSuchUrlHandlerException;
 import com.minister.pm.exception.WrongRequestMethodException;
 import com.minister.pm.log.Logger;
@@ -47,8 +48,15 @@ public class Context {
 	/**
 	 * cache file path.</br>
 	 * config file
+	 * @deprecated
 	 */
 	public Map<String,String> files = new HashMap<String,String>();
+	
+	/**
+	 * 全局配置项,多种配置，如： dev,default,product...</br>
+	 * Map<String,ConfigItem> => Map<configName,configObject>
+	 */
+	public Map<String,ConfigItem> configObjects = new HashMap<String,ConfigItem>();
 
 	/**
 	 * 路由映射。</br>
