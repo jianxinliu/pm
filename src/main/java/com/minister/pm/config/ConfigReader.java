@@ -1,6 +1,5 @@
 package com.minister.pm.config;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -38,7 +37,7 @@ public class ConfigReader {
 		try {
 			Files.list(Paths.get(sb.toString())).forEach(f -> {
 				if(!f.toFile().isDirectory()){
-					if(f.getFileName().endsWith("properties") &&	
+					if(f.getFileName().endsWith("yml") &&	
 						   (f.getFileName().startsWith("config") ||
 							f.getFileName().startsWith("application") || 
 							f.getFileName().startsWith("bootsrtap")
