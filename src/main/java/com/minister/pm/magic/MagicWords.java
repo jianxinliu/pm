@@ -8,7 +8,7 @@ import java.io.File;
  * @author jianxinliu
  */
 public enum MagicWords {
-	DEFAULT_CONFIG_FILE_NAME("defaultConfig.properties",0),
+	DEFAULT_CONFIG_FILE_NAME("defaultConfig.yml",0),
 	JAVA_PATH("",1),
 	HOST("127.0.0.1",2),
 	PORT("8079",3),
