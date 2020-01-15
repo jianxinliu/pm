@@ -1,7 +1,5 @@
 package com.minister.pm.magic;
 
-import java.io.File;
-
 /**
  * 全局魔法值
  * @date 2020年1月9日 上午9:32:39
@@ -9,7 +7,7 @@ import java.io.File;
  */
 public enum MagicWords {
 	DEFAULT_CONFIG_FILE_NAME("defaultConfig.yml",0),
-	JAVA_PATH("",1),
+	DEFAULT_CONFIG_PATH("com.minister.pm.config.defaultConfig.yml",1),
 	HOST("127.0.0.1",2),
 	PORT("8079",3),
 	TAB("    ",4),
@@ -34,11 +32,4 @@ public enum MagicWords {
 	public int getIndex() {
 		return index;
 	}
-	
-	public String getJavaPath(String prefix){
-		StringBuilder sb = new StringBuilder().append(prefix);
-		sb.append(File.separator).append("src").append(File.separator).append("main").append(File.separator)
-		.append("java");
-		return sb.toString();
 	}
-}

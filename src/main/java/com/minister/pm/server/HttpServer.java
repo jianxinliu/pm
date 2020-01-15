@@ -7,7 +7,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
 
-import com.minister.pm.config.util.PMConfig;
+import com.minister.pm.config.PMConfig;
 import com.minister.pm.core.Context;
 import com.minister.pm.log.Logger;
 import com.minister.pm.magic.MagicWords;

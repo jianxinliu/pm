@@ -27,7 +27,7 @@ public class PrimeMinister {
 
 	public static void run() {
 		
-		// read config
+		// 寻找配置文件，并解析成配置对象，存于 Context 中
 		cfgReader.findFile();
 		
 		// test

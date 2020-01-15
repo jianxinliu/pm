@@ -2,6 +2,7 @@ package com.minister.pm.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,17 +48,12 @@ public class Context {
 	public Map<String,Object> beans = new HashMap<String,Object>();
 	
 	/**
-	 * cache file path.</br>
-	 * config file
-	 * @deprecated
-	 */
-	public Map<String,String> files = new HashMap<String,String>();
-	
-	/**
 	 * 全局配置项,多种配置，如： dev,default,product...</br>
-	 * Map<String,List<ConfigItem>> => Map<configName,List<ConfigItem>>
+	 * Map<String,List<ConfigItem>> => Map<configName,List<ConfigItem>><br>
+	 * 先简化为List<ConfigItem>
 	 */
-	public Map<String,List<ConfigItem>> configObjects = new HashMap<String,List<ConfigItem>>();
+//	public Map<String,List<ConfigItem>> configObjects = new HashMap<String,List<ConfigItem>>();
+	public List<ConfigItem> configObjects = new ArrayList<ConfigItem>();
 
 	/**
 	 * 路由映射。</br>
@@ -77,7 +73,6 @@ public class Context {
 		this.components = ctx.components;
 		this.mappers = ctx.mappers;
 		this.beans = ctx.beans;
-		this.files = ctx.files;
 	}
 
 	// 映射 URL 并执行对应的 handler

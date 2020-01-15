@@ -10,11 +10,13 @@ import java.nio.file.Paths;
 
 import com.minister.pm.config.ConfigReader;
 import com.minister.pm.core.exception.InjectionException;
+import com.minister.pm.core.handler.ConfigurationHandler;
 import com.minister.pm.define.App;
 import com.minister.pm.define.Autowired;
 import com.minister.pm.define.Component;
 import com.minister.pm.define.RestController;
 import com.minister.pm.define.URLMapping;
+import com.minister.pm.define.config.Configuration;
 import com.minister.pm.log.Logger;
 
 /**
@@ -96,10 +98,11 @@ public class Scanner {
 	/**
 	 * 对给定的类进行扫描，发现注解，并将相应的内容设置到 Context 中
 	 * 
+	 * FIXME: 修改实现方式，支持多种类型的注解，使用设计模式
 	 * @param clz 类
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
-	 * @throws InjectionException 
+	 * @throws InjectionException  
 	 */
 	private static void findClassAnnotation(Class<?> clz) throws InstantiationException, IllegalAccessException, InjectionException {
 		Annotation[] clzAnnos = clz.getAnnotations();
@@ -143,6 +146,8 @@ public class Scanner {
 			}
 		} else if (clz.isAnnotationPresent(App.class)) {
 
+		} else if(clz.isAnnotationPresent(Configuration.class)){
+			ConfigurationHandler.handler(ctx,clz);
 		}
 		// 将当前类中需要注入的组件注入
 		letComponentWired(clz);
