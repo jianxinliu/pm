@@ -132,6 +132,10 @@ public class Logger implements ILog {
 	public void plantInfo(String string) {
 		System.out.print(string);
 	}
+	
+	public void errorInfo(String err){
+		System.err.println(err);
+	}
 
 	private String parse(Object pattern, LOGTYPE type, Object... args) throws Exception {
 		if (pattern == null) {

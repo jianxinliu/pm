@@ -7,6 +7,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
 
+import com.minister.pm.config.util.PMConfig;
 import com.minister.pm.core.Context;
 import com.minister.pm.log.Logger;
 import com.minister.pm.magic.MagicWords;
@@ -14,8 +15,7 @@ import com.minister.pm.server.bean.RequestBean;
 import com.minister.pm.server.bean.ResponseBean;
 import com.minister.pm.server.bean.StatuCode;
 import com.minister.pm.server.exception.WrongRequestMethodException;
-import com.minister.pm.util.HttpUtil;
-import com.minister.pm.util.PMConfig;
+import com.minister.pm.server.util.HttpUtil;
 
 /**
  *
