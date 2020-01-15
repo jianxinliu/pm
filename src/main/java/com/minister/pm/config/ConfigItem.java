@@ -6,6 +6,8 @@ import java.util.List;
 import com.minister.pm.config.exception.NoSuchConfigException;
 import com.minister.pm.config.exception.ValueAndSubItemConflictException;
 import com.minister.pm.config.util.ConfigUtil;
+import com.minister.pm.core.Context;
+import com.minister.pm.core.handler.ConfigurationHandler;
 import com.minister.pm.log.Logger;
 import com.minister.pm.magic.MagicWords;
 import com.minister.pm.util.StringUtil;
@@ -30,6 +32,7 @@ public class ConfigItem {
 	private String itemName;
 
 	// 配置值，=若为空，则有子配置项,默认为空字符串
+	// 暂时不支持列表（多值）
 	private String value = "";
 
 	// 子配置项，如：dataSource,profile
@@ -160,6 +163,14 @@ public class ConfigItem {
 		return this;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ConfigItem [itemName=").append(itemName).append(", value=").append(value).append(", subItems=")
+				.append(subItems).append("]");
+		return builder.toString();
+	}
+
 	// ================================ test =============================== //
 	private static Logger logger = Logger.getLogger(ConfigItem.class);
 
@@ -167,7 +178,8 @@ public class ConfigItem {
 		ConfigItem profile = new ConfigItem("profile");
 		ConfigItem active = new ConfigItem("active");
 		ConfigItem dev = new ConfigItem("dev", "true");
-		active.setSubItems(Arrays.asList(dev));
+		ConfigItem prod = new ConfigItem("prod", "false");
+		active.setSubItems(Arrays.asList(dev, prod));
 
 		profile.setSubItems(Arrays.asList(active));
 
@@ -201,5 +213,19 @@ public class ConfigItem {
 			System.err.println("路径表示不彻底，获取不到值");
 		}
 
+		String te = "application-dev.yml";
+		System.out.println(te.substring(te.indexOf("-") + 1, te.indexOf(".yml")));
+
+		// ========================== test ConfigurationHandler
+		ConfigItem server = new ConfigItem("server")
+				.setSubItems(Arrays.asList(new ConfigItem("port").setValue("8079")));
+		ConfigItem banner = new ConfigItem("banner", "/banner_alpha.txt");
+
+		Context ctx = Context.getContext();
+		ctx.configObjects = Arrays.asList(server, banner);
+		ConfigurationHandler.handler(ctx, PMConfig.class);
+		
+		logger.info("banner:{}", PMConfig.defaultBanner);
+		logger.info("port:{}", PMConfig.port);
 	}
 }
