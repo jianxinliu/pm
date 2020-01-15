@@ -30,21 +30,21 @@ public class ConfigReader {
 	/**
 	 * 读取工程中的配置文件，解析并作为 Bean 注入 Context </br>
 	 * 默认读取文件名为：config,application,bootsrtap </br>
-	 * 后缀名为：properties </br>
+	 * 后缀名为：yml </br>
 	 * 默认读取位置是当前工程根位置。
 	 */
 	public static void findFile() {
 		try {
 			Files.list(Paths.get(sb.toString())).forEach(f -> {
 				if(!f.toFile().isDirectory()){
-					if(f.getFileName().endsWith("yml") &&	
-						   (f.getFileName().startsWith("config") ||
-							f.getFileName().startsWith("application") || 
-							f.getFileName().startsWith("bootsrtap")
+					if(f.getFileName().endsWith(MagicWords.CONFIG_SUFFUX.getName()) &&	
+						   (f.getFileName().startsWith(MagicWords.CONFIG_PREFIX_CONFIG.getName()) ||
+							f.getFileName().startsWith(MagicWords.CONFIG_PREFIX_APPLIOCATION.getName()) || 
+							f.getFileName().startsWith(MagicWords.CONFIG_PREFIX_BOOTSTRAP.getName())
 						   )){
 						logger.info("found config file {},",f.getFileName());
 						// read config file and cache to context
-						ctx.files.put(f.getFileName().toString(), sb.toString());
+//						ctx.files.put(f.getFileName().toString(), sb.toString());
 						
 					}else{
 						logger.plantInfo("config file not found, default config will be use!");
@@ -53,9 +53,10 @@ public class ConfigReader {
 //								.append("java");
 						ctx.files.put(MagicWords.DEFAULT_CONFIG_FILE_NAME.getName(), MagicWords.JAVA_PATH.getJavaPath(pwd));
 //						Properties props = Util.getProps(sb.toString());
-//						props.get("server.port");
+//						props.get("server.port"); 
 					}
 					System.out.println(f.getFileName());
+					
 				}
 			});
 		} catch (IOException e) {

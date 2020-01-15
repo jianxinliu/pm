@@ -12,6 +12,11 @@ public enum MagicWords {
 	JAVA_PATH("",1),
 	HOST("127.0.0.1",2),
 	PORT("8079",3),
+	TAB("    ",4),
+	CONFIG_SUFFUX("yml",5),
+	CONFIG_PREFIX_CONFIG("config",6),
+	CONFIG_PREFIX_APPLIOCATION("application",7),
+	CONFIG_PREFIX_BOOTSTRAP("bootstrap",8),
 	;
 	
 	private String name;
