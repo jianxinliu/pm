@@ -1,2 +1,6 @@
+# pm 默认配置
+
 server: 
     port: 8079
+    
+banner: /banner_alpha.txt

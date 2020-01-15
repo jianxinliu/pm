@@ -1,15 +1,18 @@
-package com.minister.pm.config.util;
+package com.minister.pm.config;
 
 import java.util.Properties;
 
+import com.minister.pm.define.config.Configuration;
+import com.minister.pm.define.config.Value;
 import com.minister.pm.util.Util;
 
 /**
- *
+ * pm 默认配置,暂时只支持静态的属性作为配置项
  * @author ljx
  * @Date Feb 24, 2019 11:57:30 PM
  *
  */
+@Configuration
 public class PMConfig {
 
 	/**
@@ -26,4 +29,11 @@ public class PMConfig {
 			return 8080; // default port
 		}
 	}
+	
+	@Value(path = "server.port")
+	public static String port;
+	
+	@Value(path = "banner")
+	public static String defaultBanner;
+	
 }
