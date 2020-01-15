@@ -141,3 +141,41 @@ public class Service {
 
 ```
 
+## Samples
+
+### log
+
+```java
+Logger logger = Logger.getLogger(XXClass.class);
+logger.info("hello,{}","world"); 
+// output like : 2019-03-29 21:24:17.809   INFO     --- [c.m.p.c.Context               ] : hello,world
+```
+
+### config
+
+支持 yml 格式的配置文件。配置读取例子：
+
+```java
+@Configuration
+public class PMConfig {
+
+    @Value(path = "server.port")
+    public static String port;
+    
+    @Value(path = "banner")
+    public static String defaultBanner;
+    
+}
+
+// call
+PMConfig.port;
+```
+
+
+
+
+
+
+```
+
+```
