@@ -3,16 +3,17 @@ package com.minister.pm.core;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.minister.pm.config.ConfigItem;
 import com.minister.pm.define.URLMapping;
-import com.minister.pm.define.config.ConfigItem;
-import com.minister.pm.exception.NoSuchUrlHandlerException;
-import com.minister.pm.exception.WrongRequestMethodException;
 import com.minister.pm.log.Logger;
 import com.minister.pm.server.bean.HttpMethod;
 import com.minister.pm.server.bean.StatuCode;
+import com.minister.pm.server.exception.NoSuchUrlHandlerException;
+import com.minister.pm.server.exception.WrongRequestMethodException;
 
 /**
  * a global object
@@ -54,9 +55,9 @@ public class Context {
 	
 	/**
 	 * 全局配置项,多种配置，如： dev,default,product...</br>
-	 * Map<String,ConfigItem> => Map<configName,configObject>
+	 * Map<String,List<ConfigItem>> => Map<configName,List<ConfigItem>>
 	 */
-	public Map<String,ConfigItem> configObjects = new HashMap<String,ConfigItem>();
+	public Map<String,List<ConfigItem>> configObjects = new HashMap<String,List<ConfigItem>>();
 
 	/**
 	 * 路由映射。</br>
