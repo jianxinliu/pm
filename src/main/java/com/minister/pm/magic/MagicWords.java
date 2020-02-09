@@ -7,7 +7,7 @@ package com.minister.pm.magic;
  */
 public enum MagicWords {
 	DEFAULT_CONFIG_FILE_NAME("defaultConfig.yml",0),
-	DEFAULT_CONFIG_PATH("com.minister.pm.config.defaultConfig.yml",1),
+	DEFAULT_CONFIG_PATH("\\com\\minister\\pm\\config\\defaultConfig.yml",1),
 	HOST("127.0.0.1",2),
 	PORT("8079",3),
 	TAB("    ",4),
@@ -32,4 +32,4 @@ public enum MagicWords {
 	public int getIndex() {
 		return index;
 	}
-	}
+}

@@ -89,7 +89,8 @@ public class ConfigReader {
 
 	private static Logger logger = Logger.getLogger(ConfigReader.class);
 
-	// public static void main(String[] args) {
-	// findFile();
-	// }
+	 public static void main(String[] args) {
+		ConfigReader cr = new ConfigReader(ctx);
+		 cr.findFile();
+	 }
 }
