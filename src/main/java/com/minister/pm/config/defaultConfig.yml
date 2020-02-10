@@ -3,4 +3,8 @@
 server: 
     port: 8079
     
-banner: /banner_alpha.txt
+    
+# pm 默认配置
+pm: 
+    tab: 4  # 默认 tab 的数量
+    banner: /banner_alpha.txt

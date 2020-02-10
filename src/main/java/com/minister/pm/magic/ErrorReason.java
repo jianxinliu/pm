@@ -9,7 +9,7 @@ public enum ErrorReason {
 	WRONG_SPACE("YAML 语法——>前置空格不正确",0),
 	NO_SUCH_CONFIG("不存在此配置！",1),
 	PATH_WITH_ERROR("路径表示错误，获取不到值！",2),
-	;
+	PARSE_WRONG_TYPE("解析错误，类型不匹配！",3),;
 
 	
 	private String name;

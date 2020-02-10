@@ -33,7 +33,10 @@ public class PMConfig {
 	@Value(path = "server.port")
 	public static String port;
 	
-	@Value(path = "banner")
+	@Value(path = "pm.banner")
 	public static String defaultBanner;
+	
+	@Value(path = "pm.tab")
+	public static int tab;
 	
 }

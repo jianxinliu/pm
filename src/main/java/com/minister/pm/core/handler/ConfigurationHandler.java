@@ -19,7 +19,7 @@ import com.minister.pm.log.Logger;
 public class ConfigurationHandler {
 
 	/**
-	 * 
+	 * TODO: 设置值时进行类型转换
 	 * @param clz 
 	 */
 	public static void handler(Context ctx,Class clz){

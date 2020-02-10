@@ -15,7 +15,11 @@ public enum MagicWords {
 	CONFIG_PREFIX_CONFIG("config",6),
 	CONFIG_PREFIX_APPLIOCATION("application",7),
 	CONFIG_PREFIX_BOOTSTRAP("bootstrap",8),
-	;
+	/**
+	 * ': '
+	 */
+	KV_SPLITTER(": ",9),
+	LIST_PREFIX("- ",10),;
 	
 	private String name;
 	private int index;
