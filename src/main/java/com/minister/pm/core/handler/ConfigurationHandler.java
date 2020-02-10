@@ -19,7 +19,7 @@ import com.minister.pm.log.Logger;
 public class ConfigurationHandler {
 
 	/**
-	 * TODO: 设置值时进行类型转换
+	 * TODO: 设置值时进行类型转换,特别注意列表值
 	 * @param clz 
 	 */
 	public static void handler(Context ctx,Class clz){
@@ -28,7 +28,7 @@ public class ConfigurationHandler {
 			String path = field.getDeclaredAnnotation(Value.class).path();
 //			logger.info("path:field->{},path->{}", field.getName(),path);
 			try {
-				String cfgValue = ConfigUtil.getConfigValueFrom(ctx.configObjects, path);
+				List<String> cfgValue = ConfigUtil.getConfigValueFrom(ctx.configObjects, path);
 				field.setAccessible(true);
 				try {
 					field.set(null, cfgValue);

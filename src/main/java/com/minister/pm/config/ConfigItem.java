@@ -49,8 +49,13 @@ public class ConfigItem {
 		this.itemName = itemName;
 		this.value = value;
 	}
-	
+
 	public ConfigItem(String itemName, String value) {
+		this.itemName = itemName;
+		this.value = Arrays.asList(value);
+	}
+	
+	public ConfigItem(String itemName, String[] value) {
 		this.itemName = itemName;
 		this.value = Arrays.asList(value);
 	}
@@ -86,7 +91,20 @@ public class ConfigItem {
 			}
 		} else {
 			// 否则，显示配置值
-			ymlStyle.append(config.getValue());
+			List<String> values = config.getValue();
+			if (values.size() == 1) {
+				ymlStyle.append(values.get(0));
+			} else {
+				ymlStyle.append("\n");
+				for (String v : values) {
+					blanks++;
+					for (int i = 0; i < blanks; i++) {
+						ymlStyle.append(MagicWords.TAB.getName());
+					}
+					ymlStyle.append(MagicWords.LIST_PREFIX.getName()).append(v).append("\n");
+					blanks--;
+				}
+			}
 		}
 		return ymlStyle.toString();
 	}
@@ -147,11 +165,11 @@ public class ConfigItem {
 	}
 
 	public List<ConfigItem> getSubItems() {
-		return subItems;
+		return this.subItems;
 	}
 
 	public ConfigItem setSubItems(List<ConfigItem> subItems) throws ValueAndSubItemConflictException {
-		if (this.getValue().size() != 0) {
+		if (this.getValue() != null && this.getValue().size() != 0) {
 			throw new ValueAndSubItemConflictException("该配置项已经有值了！");
 		} else {
 			this.subItems = subItems;
@@ -160,7 +178,7 @@ public class ConfigItem {
 	}
 
 	public List<String> getValue() {
-		return value;
+		return this.value;
 	}
 
 	public ConfigItem setValue(List<String> value) throws ValueAndSubItemConflictException {
@@ -171,14 +189,14 @@ public class ConfigItem {
 		}
 		return this;
 	}
-	
+
 	public ConfigItem setValue(String value) throws ValueAndSubItemConflictException {
 		this.setValue(Arrays.asList(value));
 		return this;
 	}
-	
+
 	public int getLevel() {
-		return level;
+		return this.level;
 	}
 
 	public void setLevel(int level) {
@@ -201,14 +219,15 @@ public class ConfigItem {
 		ConfigItem active = new ConfigItem("active");
 		ConfigItem dev = new ConfigItem("dev", "true");
 		ConfigItem prod = new ConfigItem("prod", "false");
+		
 		active.setSubItems(Arrays.asList(dev, prod));
 
 		profile.setSubItems(Arrays.asList(active));
 
 		ConfigItem dataSource = new ConfigItem("dataSource");
-		ConfigItem url = new ConfigItem("url", "jdbc:mysql://localhost:3306/db");
+		ConfigItem urls = new ConfigItem("urls", new String[]{"jdbc:mysql://localhost:3306/db","jdbc:oracle://localhost:1521/db"});
 
-		dataSource.setSubItems(Arrays.asList(url));
+		dataSource.setSubItems(Arrays.asList(urls));
 
 		ConfigItem spring = new ConfigItem("spring");
 
