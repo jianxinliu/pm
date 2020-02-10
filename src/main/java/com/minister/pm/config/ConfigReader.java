@@ -70,7 +70,13 @@ public class ConfigReader {
 					}
 					System.out.println(f.getFileName());
 					// 解析配置文件
-					List<ConfigItem> configItems = ConfigUtil.parseYml(config_file_path);
+					List<ConfigItem> configItems = null;
+					try {
+						configItems = ConfigUtil.parseYml(config_file_path);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 //					ctx.configObjects.put(config_file_key, configItems);
 					ctx.configObjects = configItems;
 				}

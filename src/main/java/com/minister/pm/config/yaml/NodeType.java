@@ -15,7 +15,8 @@ public enum NodeType {
 	
 	COMMENT("注释",0),
 	LIST("列表",1),
-	NORMAL("配置项",2);
+	VALUE("配置值",2),
+	OBJECT("有子配置项",3);
 
 	private String name;
 	private int index;

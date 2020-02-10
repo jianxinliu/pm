@@ -19,6 +19,11 @@ public class TreeNode {
 	 * </code>
 	 */
 	private int nodeType;
+	
+	/**
+	 * 当前节点所处的层数
+	 */
+	private int level;
 
 	/**
 	 * 子配置项
@@ -38,8 +43,6 @@ public class TreeNode {
 	public boolean isLeaf() {
 		return StringUtil.isNotEmpty(this.value);
 	}
-	
-	
 
 	public int getNodeType() {
 		return nodeType;
@@ -47,6 +50,14 @@ public class TreeNode {
 
 	public void setNodeType(int nodeType) {
 		this.nodeType = nodeType;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
 	}
 
 	public TreeNode getSubNode() {
@@ -68,8 +79,8 @@ public class TreeNode {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("TreeNode [nodeType=").append(nodeType).append(", subNode=").append(subNode).append(", value=")
-				.append(value).append("]");
+		builder.append("TreeNode [nodeType=").append(nodeType).append(", level=").append(level).append(", subNode=")
+				.append(subNode).append(", value=").append(value).append("]");
 		return builder.toString();
 	}
 }
