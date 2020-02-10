@@ -23,6 +23,8 @@ import com.minister.pm.util.StringUtil;
  * 		   active: dev</br>
  * </code>
  * 
+ * 实际是一棵多叉树
+ * 
  * @date 2020年1月13日 下午9:21:35
  * @author jianxinliu
  */
@@ -32,8 +34,10 @@ public class ConfigItem {
 	private String itemName;
 
 	// 配置值，=若为空，则有子配置项,默认为空字符串
-	// 暂时不支持列表（多值）
-	private String value = "";
+	private List<String> value;
+
+	// 配置节点的层数，即空格的组数
+	private int level;
 
 	// 子配置项，如：dataSource,profile
 	private List<ConfigItem> subItems;
@@ -41,9 +45,14 @@ public class ConfigItem {
 	public ConfigItem() {
 	}
 
-	public ConfigItem(String itemName, String value) {
+	public ConfigItem(String itemName, List<String> value) {
 		this.itemName = itemName;
 		this.value = value;
+	}
+	
+	public ConfigItem(String itemName, String value) {
+		this.itemName = itemName;
+		this.value = Arrays.asList(value);
 	}
 
 	public ConfigItem(String itemName) {
@@ -142,7 +151,7 @@ public class ConfigItem {
 	}
 
 	public ConfigItem setSubItems(List<ConfigItem> subItems) throws ValueAndSubItemConflictException {
-		if (StringUtil.isNotEmpty(this.getValue())) {
+		if (this.getValue().size() != 0) {
 			throw new ValueAndSubItemConflictException("该配置项已经有值了！");
 		} else {
 			this.subItems = subItems;
@@ -150,11 +159,11 @@ public class ConfigItem {
 		return this;
 	}
 
-	public String getValue() {
+	public List<String> getValue() {
 		return value;
 	}
 
-	public ConfigItem setValue(String value) throws ValueAndSubItemConflictException {
+	public ConfigItem setValue(List<String> value) throws ValueAndSubItemConflictException {
 		if (this.hasSubItems()) {
 			throw new ValueAndSubItemConflictException("该配置项已经有子配置项了！");
 		} else {
@@ -162,12 +171,25 @@ public class ConfigItem {
 		}
 		return this;
 	}
+	
+	public ConfigItem setValue(String value) throws ValueAndSubItemConflictException {
+		this.setValue(Arrays.asList(value));
+		return this;
+	}
+	
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ConfigItem [itemName=").append(itemName).append(", value=").append(value).append(", subItems=")
-				.append(subItems).append("]");
+		builder.append("ConfigItem [itemName=").append(itemName).append(", value=").append(value).append(", level=")
+				.append(level).append(", subItems=").append(subItems).append("]");
 		return builder.toString();
 	}
 
@@ -224,8 +246,9 @@ public class ConfigItem {
 		Context ctx = Context.getContext();
 		ctx.configObjects = Arrays.asList(server, banner);
 		ConfigurationHandler.handler(ctx, PMConfig.class);
-		
+
 		logger.info("banner:{}", PMConfig.defaultBanner);
 		logger.info("port:{}", PMConfig.port);
 	}
+
 }
