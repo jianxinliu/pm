@@ -19,7 +19,7 @@ import com.minister.pm.log.Logger;
 public class ConfigurationHandler {
 
 	/**
-	 * TODO: 设置值时进行类型转换,特别注意列表值
+	 * FIXME: 设置值时进行类型转换,特别注意列表值
 	 * @param clz 
 	 */
 	public static void handler(Context ctx,Class clz){
@@ -31,12 +31,18 @@ public class ConfigurationHandler {
 				List<String> cfgValue = ConfigUtil.getConfigValueFrom(ctx.configObjects, path);
 				field.setAccessible(true);
 				try {
-					field.set(null, cfgValue);
+					if (cfgValue.size() == 1) {
+						field.set(null, cfgValue.get(0));
+					} else {
+						
+					}
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
+					System.exit(1);
 				}
 			} catch (NoSuchConfigException e) {
 				e.printStackTrace();
+				System.exit(1);
 			}
 		}
 	}

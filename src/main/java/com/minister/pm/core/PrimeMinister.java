@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map.Entry;
 
 import com.minister.pm.config.ConfigReader;
+import com.minister.pm.config.exception.YamlSyntaxException;
 import com.minister.pm.log.Logger;
 import com.minister.pm.server.HttpServer;
 import com.minister.pm.util.BannerUtil;
@@ -22,24 +23,30 @@ public class PrimeMinister {
 	static {
 		context = Context.getContext();
 	}
-	
+
 	private static ConfigReader cfgReader = new ConfigReader(context);
 
 	public static void run() {
 		
+		BannerUtil.printBanner();
+
 		// 寻找配置文件，并解析成配置对象，存于 Context 中
-		cfgReader.findFile();
-		
+		try {
+			cfgReader.findFile();
+		} catch (YamlSyntaxException e1) {
+			e1.printStackTrace();
+		}
+		logger.info("1. Config ready!");
 		// test
-		for(Entry<String, Object> ent:context.beans.entrySet()){
+		for (Entry<String, Object> ent : context.beans.entrySet()) {
 			String key = ent.getKey();
 			Object value = ent.getValue();
-			logger.info("entity:key={},value={}", key,value);
+			logger.info("entity:key={},value={}", key, value);
 		}
-		
-		BannerUtil.printBanner();
+
 		// read @App annotation
 		context.start();
+		logger.info("2. Context ready!");
 		// read all annotation
 
 		// let all things ready
@@ -51,6 +58,6 @@ public class PrimeMinister {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static Logger logger = Logger.getLogger(PrimeMinister.class);
 }

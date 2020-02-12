@@ -6,49 +6,27 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import com.minister.pm.config.ConfigItem;
 import com.minister.pm.config.exception.NoSuchConfigException;
-import com.minister.pm.config.exception.YamlSyntaxExcaption;
+import com.minister.pm.config.exception.ParseException;
+import com.minister.pm.config.exception.ValueAndSubItemConflictException;
+import com.minister.pm.config.exception.YamlSyntaxException;
+import com.minister.pm.config.yaml.NodeType;
 import com.minister.pm.log.Logger;
 import com.minister.pm.magic.ErrorReason;
+import com.minister.pm.magic.MagicWords;
+import com.minister.pm.util.StringUtil;
 
 /**
- * <code>
- * YAML 格式解析步骤：
- * 1. 构建配置森林（buildYamlTree）。
- * 		一种配置项(包含子配置项)构建成一棵树，多个配置项组成森林。
- * 		树的构建：
- * 			按空格组数分层（组数同则层数同），四个
- * 空格为一组，同一组数据在树的一层中。
- * 2. 收集（collect）从树根开始收集
- * 		接下进行深度优先遍历，同一层的节点都作为各自父节点的子配置项，叶结点为配置值。
- * 
- * 配置森林中树的特点：
- * 1. 只有一个根节点，但不能只有根节点，至少有一个叶结点。举例：<code>mydata:123</code>
- * 2. 配置值都在叶结点，无值则有子节点
- * 3. 节点类型：
- * 		3.1 # 开头的注释行
- * 		3.2 - 开头的列表
- * 		3.3  其他则是正常的节点
- * 
- * </code>
- * 
  * @date 2020年1月13日 下午11:51:23
  * @author jianxinliu
  */
 @SuppressWarnings({ "unused" })
 public class ConfigUtil {
-
-	// 配置分组，下标表示前置空格组数。
-	@SuppressWarnings("unchecked")
-	ArrayList<ConfigItem>[] cfgItemGroup = new ArrayList[10];
-	// ConfigItem[][] cfgItemGroup = new ConfigItem[10][];
-	// List<ArrayList<ConfigItem>> cfgItemGroup = new
-	// ArrayList<ArrayList<ConfigItem>>(10);
 
 	/**
 	 * 解析 yml 文件成 ConfigItem 对象。真正解析yaml语法较复杂，这里只做简单实现 <br>
@@ -66,93 +44,485 @@ public class ConfigUtil {
 	 * @param path
 	 *            yml文件路径
 	 * @return List<ConfigItem>
+	 * @throws YamlSyntaxException
 	 */
-	public static List<ConfigItem> parseYml(String path) {
-		List<ConfigItem> ret = new ArrayList<ConfigItem>();
+	public static List<ConfigItem> parseYml(String path) throws YamlSyntaxException {
+		logger.info(path);
+		// ====================== parse initial ========================= //
+		Stack<ConfigItem> stack = new Stack<ConfigItem>();
+		// 初始化一个深度为 16 的栈，表示树的深度，足够用了
+		stack.init(new ConfigItem[16]);
 
-		logger.plantInfo(path);
+		// root 节点，一个配置文件中的多个配置节点作为其子节点，无值，处于 -1 层
+		ConfigItem root = new ConfigItem("root");
+		root.setLevel(-1);
 
-		/**
-		 * 解析注意：<br>
-		 * # 是注释，此行不解析<br>
-		 * - 是列表，配置值是列表<br>
-		 * 键值间以": "分割
-		 */
+		// 上一行的层级，初始为根节点的层级
+		int preLevel = root.getLevel();
+		// 当前行的层级
+		int currLevel = preLevel;
+
+		// 父节点指针，指向父节点在栈中的位置
+		int parent = 0;
+
+		stack.push(root);
+
+		// ======================= parse start ========================= //
 
 		try (FileReader fr = new FileReader(new File(path)); BufferedReader br = new BufferedReader(fr);) {
-			// FileInputStream fin = new FileInputStream(new File(path));
-			// BufferedInputStream bfin = new BufferedInputStream(fin);
 			String line = null;
 			while ((line = br.readLine()) != null) {
-				logger.info("line:{}", line);
+				// 空行则略过
+				if (StringUtil.isBlank(line)) {
+					continue;
+				}
+				// 是否含有注释
+				int sharp = line.indexOf(MagicWords.COMMENT.getName());
+				if (sharp != -1) {
+					// '# '在行首和行间的情况都兼顾
+					line = line.substring(0, sharp);
+					if (StringUtil.isBlank(line)) {
+						// 去除注释之后为空，则表示'# '在行首，此行不解析
+						continue;
+					}
+				}
+
+				// 行内不含注释，解析之
+				// 用栈维护层次进退以及列表元素的组装
+
+				// 层级的维护
+				preLevel = currLevel;
+				currLevel = countLevel(line);
+
+				ConfigItem lineConfig = new ConfigItem();
+				NodeType lineType = lineType(line);
+
+				String name = null;
+				// 当前行的配置值，若 lineType
+				// 是VALUE,则value=配置值；若是OBJECT,则value=null;若是LIST,则value=列表项值。
+				// 值的类型由 lineType 决定
+				String value = null;
+				// 临时容器，为了取其kv,也可直接挂载到父节点
+				ConfigItem valueC = null;
+
+				// 一、解析当前行，有三种情况，举例如下：
+				// 1. spring:（对应有子配置项和列表名两种情况）
+				// 2. dev: true
+				// 3. - jdbc:mysql://localhost:3306/db
+				if (lineType == NodeType.LIST) {
+					try {
+						value = getListValue(line);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				} else if (lineType == NodeType.VALUE || lineType == NodeType.OBJECT) {
+					try {
+						valueC = getCfgItemFrom(line);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+				// 二、组装当前行配置对象
+				if (valueC != null) {
+					lineConfig = valueC;
+					lineConfig.setLevel(currLevel);
+				} else {
+					// 当前行是列表项，特殊处理，及时挂载
+					try {
+						stack.getTop().addValue(value);
+					} catch (ValueAndSubItemConflictException e) {
+						e.printStackTrace();
+					}
+					continue;
+				}
+
+				// 三、挂载当前行到父节点，如果是列表项，则挂载方式不同
+				if (currLevel > preLevel) {
+					// 有缩进,当前 ConfigItem 进栈
+					ConfigItem pre = stack.getTop();
+					try {
+						pre.addSubItem(lineConfig);
+					} catch (ValueAndSubItemConflictException e) {
+						e.printStackTrace();
+					}
+					int top = stack.push(lineConfig);
+					// 更新 parent 指针
+					parent = top - 1;
+				} else if (currLevel < preLevel) {
+					// 有后退，计算后退的层数 a ，出栈 a 次，得到的数据作为此时栈顶元素的子元素
+					int backSteps = preLevel - currLevel;
+					List<ConfigItem> subItems = new ArrayList<ConfigItem>();
+					for (int i = 0; i < backSteps; i++) {
+						subItems.add(stack.pop());
+					}
+					try {
+						stack.getTop().setSubItems(subItems);
+					} catch (ValueAndSubItemConflictException e) {
+						e.printStackTrace();
+					}
+				} else {
+					// 上下行层级相同
+					if (lineType == NodeType.LIST) {
+						try {
+							stack.getTop().addValue(value);
+						} catch (ValueAndSubItemConflictException e) {
+							e.printStackTrace();
+						}
+					} else if (lineType == NodeType.VALUE) {
+						try {
+							stack.push(lineConfig);
+							// 得到父节点
+							stack.get(parent).addSubItem(lineConfig);
+						} catch (ValueAndSubItemConflictException e) {
+							e.printStackTrace();
+						}
+					}
+				}
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		return ret;
+		return root.getSubItems();
 	}
 
 	/**
-	 * 解析一行
+	 * 解析方法 2。<br>
+	 * 将每一个有意义的行读入栈，此时栈中元素的层级，从底到顶是多个递增序列，一个文件都读完之后进行出栈，此时的操作说明如下：<br>
+	 * 1. 也就是逆向操作，将层级最低的项归于高一级的项<br>
+	 * 2. 同级元素暂时缓存成组，待碰到更低一级的元素再归于，注意同级元素和列表项（可分为列表栈和元素栈）<br>
+	 * 2. 用一个栈缓存临时数据<br>
+	 * 
+	 * <code>
+	 * level   config    
+	 *	0    |spring: 
+	 *	1    |    profile: 
+	 *	2    |        active: 
+	 *	3    |            dev: true
+	 *	3    |            prod: false
+	 *	1    |    dataSource: 
+	 *	2    |        urls: 
+	 *	3    |            - jdbc:mysql://localhost:3306/db
+	 *	3    |            - jdbc:oracle://localhost:1521/db
+	 *	0    |mydata: 123
+	 *	0    |server: 
+	 *	1    |    port: 8079
+	 *	0    |pm: 
+	 *	1    |    tab: 4
+	 *	1    |    banner: /banner_alpha.txt
+	 * </code>
+	 * 
+	 * @param path
+	 * @return 配置列表
+	 * @throws YamlSyntaxException
 	 */
-	private void parseLine(String line) {
+	public static List<ConfigItem> parseYml2(String path) throws YamlSyntaxException {
+		Stack<ConfigItem> stack = load(path);
+		return buildConfigTree(stack);
+	}
 
+	private static Stack<ConfigItem> load(String path) throws YamlSyntaxException {
+		logger.info(path);
+		// ====================== parse initial ========================= //
+		Stack<ConfigItem> stack = new Stack<ConfigItem>();
+		// FIXME: 栈用于缓存所有行，长度应该可变
+		stack.init(new ConfigItem[30]);
+
+		// root 节点，一个配置文件中的多个配置节点作为其子节点，无值，处于 -1 层
+		ConfigItem root = new ConfigItem("root");
+		root.setLevel(-1);
+
+		// 当前行的层级
+		int currLevel = root.getLevel();
+		stack.push(root);
+
+		// ============================= 所有行数据入栈 ============================ //
+		try (FileReader fr = new FileReader(new File(path)); BufferedReader br = new BufferedReader(fr);) {
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				// 空行则略过
+				if (StringUtil.isBlank(line)) {
+					continue;
+				}
+				// 是否含有注释
+				int sharp = line.indexOf(MagicWords.COMMENT.getName());
+				if (sharp != -1) {
+					// '# '在行首和行间的情况都兼顾
+					line = line.substring(0, sharp);
+					if (StringUtil.isBlank(line)) {
+						// 去除注释之后为空，则表示'# '在行首，此行不解析
+						continue;
+					}
+				}
+				
+				currLevel = countLevel(line);
+
+				ConfigItem lineConfig = new ConfigItem();
+				NodeType lineType = lineType(line);
+
+				// 一、解析当前行，有三种情况，举例如下：
+				// 1. spring:（对应有子配置项和列表名两种情况）
+				// 2. dev: true
+				// 3. - jdbc:mysql://localhost:3306/db
+				if (lineType == NodeType.LIST) {
+					try {
+						// 列表项特殊名字，用 ConfigItem 对象包装只是为了统一
+						lineConfig = new ConfigItem(MagicWords.LIST_LEVEL.getName(), getListValue(line));
+						// 列表项特殊层级
+						lineConfig.setLevel(MagicWords.LIST_LEVEL.getIndex());
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				} else if (lineType == NodeType.VALUE || lineType == NodeType.OBJECT) {
+					try {
+						lineConfig = getCfgItemFrom(line);
+						lineConfig.setLevel(currLevel);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				} else {
+					// 语法错误
+					throw new YamlSyntaxException(ErrorReason.WRONG_SYNTAX.getName());
+				}
+				stack.push(lineConfig);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		return stack;
+	}
+
+	// ============================= 退栈，挂载 ============================= //
+	private static List<ConfigItem> buildConfigTree(Stack<ConfigItem> stack) {
+		Stack<ConfigItem> cacheStack = new Stack<ConfigItem>();
+		cacheStack.init(new ConfigItem[30]);
+
+		ConfigItem cfg = null;
+		while ((cfg = stack.pop()) != null) {
+			ConfigItem cacheTop = null;
+			if ((cacheTop = cacheStack.getTop()) != null) {
+				int diff = cfg.getLevel() - cacheTop.getLevel();
+				if (diff >= 0) {
+					cacheStack.push(cfg);
+				} else {
+					// 更高层级的项即将入栈，从栈顶开始将顶部层级比其大的项出栈（到栈空或者遇到同层级的项为止）
+					ConfigItem temp = null;
+					int level = cfg.getLevel();
+					int cnt = 1;
+					while ((temp = cacheStack.get(cnt++)) != null) {
+						if (cfg.getLevel() >= temp.getLevel()) {
+							break;
+						}
+					}
+					// cnt - 2 :原始 cnt == 1 ，需减去；cnt++ 惯性又加一，需减去
+					for (int i = 0; i < cnt - 2; i++) {
+						ConfigItem topCfg = cacheStack.pop();
+						// 挂载时注意项的类型
+						if (MagicWords.LIST_LEVEL.getName().equals(topCfg.getItemName())
+								&& topCfg.getLevel() == MagicWords.LIST_LEVEL.getIndex()) {
+							try {
+								cfg.addValue(topCfg.getValue().get(0));
+							} catch (ValueAndSubItemConflictException e) {
+								e.printStackTrace();
+							}
+						} else {
+							try {
+								cfg.addSubItem(topCfg);
+							} catch (ValueAndSubItemConflictException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					cacheStack.push(cfg);
+				}
+			} else {
+				cacheStack.push(cfg);
+			}
+		}
+
+		// 丢弃 root 节点
+		return cacheStack.pop().getSubItems();
 	}
 
 	/**
-	 * 一行头部空格计数,四个为一组。凑不成组的报错
+	 * 简易栈实现
+	 * 
+	 * @author jianxinliu
+	 */
+	private static class Stack<T> {
+		private T[] ele;
+		private int top = -1;
+
+		public void init(T[] instance) {
+			this.ele = instance;
+		}
+
+		/**
+		 * 返回当前推入数据在栈中的位置，也就是 top
+		 * 
+		 * @param el
+		 * @return
+		 */
+		public int push(T el) {
+			this.ele[++top] = el;
+			return top;
+		}
+
+		public T pop() {
+			if (top < 0) {
+				return null;
+			}
+			return this.ele[top--];
+		}
+
+		public T getTop() {
+			if(top < 0){
+				return null;
+			}
+			return this.ele[top];
+		}
+
+		public int getTopPtr() {
+			return this.top;
+		}
+
+		/**
+		 * 获取栈中从 top 开始倒数指定位置的元素,如：<br>
+		 * <code>
+		 * stack = [5,3,7,0,9,1];
+		 * top = 3;
+		 * get(1); ==> 0
+		 * get(2); ==> 7
+		 * </code>
+		 * @param ptr get(1) == getTop()
+		 * @return
+		 */
+		public T get(int ptr) {
+			int idx = top - ptr + 1;
+			if(idx < 0){
+				return null;
+			}
+			return this.ele[idx];
+		}
+
+		public List<T> popAll() {
+			List<T> ret = new ArrayList<T>();
+			T t = null;
+			while ((t = this.pop()) != null) {
+				ret.add(t);
+			}
+			return ret;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("Stack [ele=").append(Arrays.toString(ele)).append(", top=").append(top).append("]");
+			return builder.toString();
+		}
+	}
+
+	/**
+	 * 判断一行属于什么类型，可检测不符合语法的行
 	 * 
 	 * @param line
-	 * @return 空格组的数量
-	 * @throws YamlSyntaxExcaption
+	 * @return
 	 */
-	private int countHeadSpace(String line) throws YamlSyntaxExcaption {
+	private static NodeType lineType(String line) {
+		if (line.indexOf(MagicWords.LIST_PREFIX.getName()) != -1
+				&& line.indexOf(MagicWords.KV_SPLITTER.getName()) == -1) {
+			// 列表项的特点：有 '- ' ，无 ': '
+			return NodeType.LIST;
+		} else if (line.indexOf(MagicWords.KV_SPLITTER.getName()) != -1) {
+			return line.split(MagicWords.KV_SPLITTER.getName()).length == 1 ? NodeType.OBJECT : NodeType.VALUE;
+		} else if (line.indexOf(MagicWords.COMMENT.getName()) != -1) {
+			return NodeType.COMMENT;
+		} else {
+			return NodeType.WRONG;
+		}
+
+	}
+
+	/**
+	 * 一行头部空格计数,四个为一组。
+	 * 
+	 * @param line
+	 * @return 空格组的数量(层级)
+	 * @throws YamlSyntaxException
+	 *             凑不成组的报错
+	 */
+	private static int countLevel(String line) throws YamlSyntaxException {
+		int tab = MagicWords.TAB.getName().length();
 		int ret = 0;
 		int cnt = 0;
 		char[] chars = line.toCharArray();
 		for (char c : chars) {
+			// 32 == ' '
 			if (32 == c)
 				cnt++;
 			else
 				break;
 		}
-		if (cnt % 4 != 0) {
-			throw new YamlSyntaxExcaption(ErrorReason.WRONG_SPACE.getName());
+		if (cnt % tab != 0) {
+			throw new YamlSyntaxException(ErrorReason.WRONG_SPACE.getName());
 		} else {
-			ret = cnt / 4;
+			ret = cnt / tab;
 		}
 		return ret;
 	}
 
 	/**
-	 * 对不同空格组的配置项进项分组
+	 * 从一行中获取解析过的 ConfigItem 对象<br>
+	 * 
+	 * 特别的，如果行中含有'# ',则1）'# '在行首：该行不传入；2）'# '在行中,则传入的line不包含
+	 * '#'及其后面的内容，实际上变成了普通行
 	 * 
 	 * @param line
-	 * @throws YamlSyntaxExcaption
+	 *            只解析普通行，列表行和注释行不解析。即只解析格式为：<code>key: value</code> 或
+	 *            <code>key: </code>的行
+	 * @return
+	 * @throws ParseException
+	 *             传入不匹配的行类型时报该异常
 	 */
-	private void buildYamlTree(String line) throws YamlSyntaxExcaption {
-		int spaces = countHeadSpace(line);
-		ArrayList<ConfigItem> cfgs = cfgItemGroup[spaces];
-		if (cfgs == null) {
-			cfgs = new ArrayList<ConfigItem>();
-		} else {
-			cfgs.add(getCfgItemFromLine(spaces, line));
-			cfgItemGroup[spaces] = cfgs;
+	private static ConfigItem getCfgItemFrom(String line) throws ParseException {
+		if (line.indexOf(MagicWords.KV_SPLITTER.getName()) == -1) {
+			throw new ParseException(ErrorReason.PARSE_WRONG_TYPE.getName());
 		}
+		ConfigItem cfg = new ConfigItem();
+		String[] cfgStrs = line.split(MagicWords.KV_SPLITTER.getName());
+		String _k = cfgStrs[0].trim();
+		cfg.setItemName(_k);
+		String _v = null;
+		// 支持节点类型 OBJECT的值
+		if (cfgStrs.length != 1) {
+			_v = cfgStrs[1].trim();
+			try {
+				cfg.setValue(_v);
+			} catch (ValueAndSubItemConflictException e) {
+				e.printStackTrace();
+			}
+		}
+		return cfg;
 	}
 
 	/**
-	 * 从一行中获取配置值
+	 * 解析列表值
 	 * 
-	 * @param line
+	 * @param listItem
+	 *            列表项，格式为：<code>- www.baidu.com</code>
 	 * @return
+	 * @throws ParseException
+	 *             传入不匹配的行类型时报该异常
 	 */
-	private ConfigItem getCfgItemFromLine(int spaces, String line) {
-		ConfigItem cfg = new ConfigItem();
-		String cfgStr = line.trim();
-		return cfg;
+	private static String getListValue(String listItem) throws ParseException {
+		int list = listItem.indexOf(MagicWords.LIST_PREFIX.getName());
+		if (list == -1) {
+			throw new ParseException(ErrorReason.PARSE_WRONG_TYPE.getName());
+		}
+		return listItem.substring(list + MagicWords.LIST_PREFIX.getName().length(), listItem.length());
 	}
 
 	/**
@@ -166,8 +536,8 @@ public class ConfigUtil {
 	 * @throws CommonException
 	 * @throws NoSuchConfigException
 	 */
-	public static String getConfigValueFrom(List<ConfigItem> cfgs, String path) throws NoSuchConfigException {
-		String value = "";
+	public static List<String> getConfigValueFrom(List<ConfigItem> cfgs, String path) throws NoSuchConfigException {
+		List<String> value = new ArrayList<String>();
 		// 单层配置值。 如自定义配置：mydata:123
 		if (path.indexOf(".") == -1) {
 			for (ConfigItem configItem : cfgs) {
@@ -203,8 +573,8 @@ public class ConfigUtil {
 	 * @throws CommonException
 	 * @throws NoSuchConfigException
 	 */
-	public static String getConfigValueFrom(ConfigItem cfg, String path) throws NoSuchConfigException {
-		String ret = null;
+	public static List<String> getConfigValueFrom(ConfigItem cfg, String path) throws NoSuchConfigException {
+		List<String> ret = null;
 		String[] paths = path.split("\\.");
 		if (!cfg.getItemName().equals(paths[0])) {
 			throw new NoSuchConfigException(ErrorReason.NO_SUCH_CONFIG.getName());
@@ -235,17 +605,24 @@ public class ConfigUtil {
 	public static void main(String[] args) {
 		System.out.println(Integer.valueOf(' ') + "   " + (32 == ' '));
 
-		ConfigUtil cu = new ConfigUtil();
 		try {
-			System.out.println(cu.countHeadSpace("        "));
-			System.out.println(cu.countHeadSpace("        x3"));
-			System.out.println(cu.countHeadSpace("        34"));
+			System.out.println(ConfigUtil.countLevel("        "));
+			System.out.println(ConfigUtil.countLevel("        x3"));
+			System.out.println(ConfigUtil.countLevel("        34"));
 			String line = "        r4";
-			int spaces = cu.countHeadSpace(line);
+			int spaces = ConfigUtil.countLevel(line);
 			System.out.println(line.substring(spaces * 4, line.length()));
 			System.out.println(line.trim());
-		} catch (YamlSyntaxExcaption e) {
+		} catch (YamlSyntaxException e) {
 			e.printStackTrace();
 		}
+
+		// test
+		String tex = "kd: lkd";
+		int idx = tex.indexOf(": ");
+		System.out.println(tex.substring(idx + 2, tex.length()));
+		String tex2 = "kd: ";
+		String[] split = tex2.split(": ");
+		System.out.println("a:" + split[1] + ":a");
 	}
 }
