@@ -1,5 +1,6 @@
 package com.minister.pm.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -60,7 +61,8 @@ public class Scanner {
 						String javaPath = convertToJavaPath(path);
 						try {
 							Class<?> clz = Class.forName(javaPath);
-							logger.info(clz.getName()); // 打印扫描到的类，不必要
+							// FIXME: 删除
+							logger.info(clz.getName()); 
 							findClassAnnotation(clz);
 						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InjectionException e) {
 							e.printStackTrace();
@@ -87,11 +89,11 @@ public class Scanner {
 		ret = p.substring(0, dot);
 
 		// 去掉包名前缀
-		// TODO: dumb way
-		ret = ret.substring(ret.indexOf("/java/") + 6, ret.length());
+		String split = File.separator + "java" + File.separator;
+		ret = ret.substring(ret.indexOf(split) + split.length(), ret.length());
 
-		// 斜杠换成 .
-		ret = ret.replace("/", ".");
+		// 路径分隔符换成 .
+		ret = ret.replace(File.separator, ".");
 		return ret;
 	}
 

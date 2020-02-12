@@ -1,5 +1,6 @@
 package com.minister.pm.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -176,6 +177,14 @@ public class ConfigItem {
 		}
 		return this;
 	}
+	
+	public ConfigItem addSubItem(ConfigItem item) throws ValueAndSubItemConflictException{
+		if(this.getSubItems() == null){
+			this.setSubItems(new ArrayList<ConfigItem>());
+		}
+		this.getSubItems().add(item);
+		return this;
+	}
 
 	public List<String> getValue() {
 		return this.value;
@@ -192,6 +201,14 @@ public class ConfigItem {
 
 	public ConfigItem setValue(String value) throws ValueAndSubItemConflictException {
 		this.setValue(Arrays.asList(value));
+		return this;
+	}
+	
+	public ConfigItem addValue(String value) throws ValueAndSubItemConflictException{
+		if(this.getValue() == null){
+			this.setValue(new ArrayList<>());
+		}
+		this.getValue().add(value);
 		return this;
 	}
 
@@ -266,8 +283,8 @@ public class ConfigItem {
 		ctx.configObjects = Arrays.asList(server, banner);
 		ConfigurationHandler.handler(ctx, PMConfig.class);
 
-		logger.info("banner:{}", PMConfig.defaultBanner);
 		logger.info("port:{}", PMConfig.port);
+		
 	}
 
 }

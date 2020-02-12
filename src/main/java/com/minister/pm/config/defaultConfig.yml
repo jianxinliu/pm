@@ -1,3 +1,25 @@
+
+
+# 测试数据
+     # 测试数据
+
+spring: # 测试数据
+    profile: 
+        active: 
+            dev: true
+            prod: false
+    dataSource: 
+        urls: 
+            - jdbc:mysql://localhost:3306/db
+            - jdbc:oracle://localhost:1521/db
+
+mydata: 123
+a: b
+c: d
+e: f
+g: d
+
+
 # pm 默认配置
 
 server: 
@@ -7,4 +29,3 @@ server:
 # pm 默认配置
 pm: 
     tab: 4  # 默认 tab 的数量
-    banner: /banner_alpha.txt

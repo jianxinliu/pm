@@ -39,14 +39,14 @@ public class HttpServer {
 	public void run(Context context) throws IOException {
 		ctx = context;
 
-//		// 从配置文件拿
-//		int PORT = (int) this.ctx.beans.get("host");
+		//TODO:  从配置文件拿
+//		int PORT = PMConfig.port;
 
 		ServerSocketChannel ssc = ServerSocketChannel.open();
 		ssc.socket().bind(new InetSocketAddress(MagicWords.HOST.getName(), PORT));// listen
 																					// at
 																					// 127.0.0.1:8080
-		logger.info("Server listening on {}:{}....\n", MagicWords.HOST.getName(), PORT);
+		logger.info("3. Server listening on {}:{}....\n", MagicWords.HOST.getName(), PORT);
 		while (true) {
 			SocketChannel socket = ssc.accept();
 			ByteBuffer reqBuf = ByteBuffer.allocate(1024);

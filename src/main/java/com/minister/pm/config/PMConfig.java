@@ -33,10 +33,10 @@ public class PMConfig {
 	@Value(path = "server.port")
 	public static String port;
 	
-	@Value(path = "pm.banner")
-	public static String defaultBanner;
-	
 	@Value(path = "pm.tab")
 	public static int tab;
+	
+	@Value(path = "spring.dataSource.urls")
+	public static String[] urls;
 	
 }
