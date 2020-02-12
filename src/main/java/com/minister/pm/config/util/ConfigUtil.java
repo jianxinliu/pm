@@ -29,166 +29,6 @@ import com.minister.pm.util.StringUtil;
 public class ConfigUtil {
 
 	/**
-	 * 解析 yml 文件成 ConfigItem 对象。真正解析yaml语法较复杂，这里只做简单实现 <br>
-	 * <code>
-	 * spring: 
-	 *	    profile: 
-	 *	        active: 
-	 *	            dev: true
-	 *	            prod: false
-	 *	    dataSource: 
-	 *	        url: jdbc:mysql://localhost:3306/db
-	 * mydata: 123
-	 * </code>
-	 * 
-	 * @param path
-	 *            yml文件路径
-	 * @return List<ConfigItem>
-	 * @throws YamlSyntaxException
-	 */
-	public static List<ConfigItem> parseYml(String path) throws YamlSyntaxException {
-		logger.info(path);
-		// ====================== parse initial ========================= //
-		Stack<ConfigItem> stack = new Stack<ConfigItem>();
-		// 初始化一个深度为 16 的栈，表示树的深度，足够用了
-		stack.init(new ConfigItem[16]);
-
-		// root 节点，一个配置文件中的多个配置节点作为其子节点，无值，处于 -1 层
-		ConfigItem root = new ConfigItem("root");
-		root.setLevel(-1);
-
-		// 上一行的层级，初始为根节点的层级
-		int preLevel = root.getLevel();
-		// 当前行的层级
-		int currLevel = preLevel;
-
-		// 父节点指针，指向父节点在栈中的位置
-		int parent = 0;
-
-		stack.push(root);
-
-		// ======================= parse start ========================= //
-
-		try (FileReader fr = new FileReader(new File(path)); BufferedReader br = new BufferedReader(fr);) {
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				// 空行则略过
-				if (StringUtil.isBlank(line)) {
-					continue;
-				}
-				// 是否含有注释
-				int sharp = line.indexOf(MagicWords.COMMENT.getName());
-				if (sharp != -1) {
-					// '# '在行首和行间的情况都兼顾
-					line = line.substring(0, sharp);
-					if (StringUtil.isBlank(line)) {
-						// 去除注释之后为空，则表示'# '在行首，此行不解析
-						continue;
-					}
-				}
-
-				// 行内不含注释，解析之
-				// 用栈维护层次进退以及列表元素的组装
-
-				// 层级的维护
-				preLevel = currLevel;
-				currLevel = countLevel(line);
-
-				ConfigItem lineConfig = new ConfigItem();
-				NodeType lineType = lineType(line);
-
-				String name = null;
-				// 当前行的配置值，若 lineType
-				// 是VALUE,则value=配置值；若是OBJECT,则value=null;若是LIST,则value=列表项值。
-				// 值的类型由 lineType 决定
-				String value = null;
-				// 临时容器，为了取其kv,也可直接挂载到父节点
-				ConfigItem valueC = null;
-
-				// 一、解析当前行，有三种情况，举例如下：
-				// 1. spring:（对应有子配置项和列表名两种情况）
-				// 2. dev: true
-				// 3. - jdbc:mysql://localhost:3306/db
-				if (lineType == NodeType.LIST) {
-					try {
-						value = getListValue(line);
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
-				} else if (lineType == NodeType.VALUE || lineType == NodeType.OBJECT) {
-					try {
-						valueC = getCfgItemFrom(line);
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
-				}
-				// 二、组装当前行配置对象
-				if (valueC != null) {
-					lineConfig = valueC;
-					lineConfig.setLevel(currLevel);
-				} else {
-					// 当前行是列表项，特殊处理，及时挂载
-					try {
-						stack.getTop().addValue(value);
-					} catch (ValueAndSubItemConflictException e) {
-						e.printStackTrace();
-					}
-					continue;
-				}
-
-				// 三、挂载当前行到父节点，如果是列表项，则挂载方式不同
-				if (currLevel > preLevel) {
-					// 有缩进,当前 ConfigItem 进栈
-					ConfigItem pre = stack.getTop();
-					try {
-						pre.addSubItem(lineConfig);
-					} catch (ValueAndSubItemConflictException e) {
-						e.printStackTrace();
-					}
-					int top = stack.push(lineConfig);
-					// 更新 parent 指针
-					parent = top - 1;
-				} else if (currLevel < preLevel) {
-					// 有后退，计算后退的层数 a ，出栈 a 次，得到的数据作为此时栈顶元素的子元素
-					int backSteps = preLevel - currLevel;
-					List<ConfigItem> subItems = new ArrayList<ConfigItem>();
-					for (int i = 0; i < backSteps; i++) {
-						subItems.add(stack.pop());
-					}
-					try {
-						stack.getTop().setSubItems(subItems);
-					} catch (ValueAndSubItemConflictException e) {
-						e.printStackTrace();
-					}
-				} else {
-					// 上下行层级相同
-					if (lineType == NodeType.LIST) {
-						try {
-							stack.getTop().addValue(value);
-						} catch (ValueAndSubItemConflictException e) {
-							e.printStackTrace();
-						}
-					} else if (lineType == NodeType.VALUE) {
-						try {
-							stack.push(lineConfig);
-							// 得到父节点
-							stack.get(parent).addSubItem(lineConfig);
-						} catch (ValueAndSubItemConflictException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		return root.getSubItems();
-	}
-
-	/**
-	 * 解析方法 2。<br>
 	 * 将每一个有意义的行读入栈，此时栈中元素的层级，从底到顶是多个递增序列，一个文件都读完之后进行出栈，此时的操作说明如下：<br>
 	 * 1. 也就是逆向操作，将层级最低的项归于高一级的项<br>
 	 * 2. 同级元素暂时缓存成组，待碰到更低一级的元素再归于，注意同级元素和列表项（可分为列表栈和元素栈）<br>
@@ -217,7 +57,7 @@ public class ConfigUtil {
 	 * @return 配置列表
 	 * @throws YamlSyntaxException
 	 */
-	public static List<ConfigItem> parseYml2(String path) throws YamlSyntaxException {
+	public static List<ConfigItem> parseYml(String path) throws YamlSyntaxException {
 		Stack<ConfigItem> stack = load(path);
 		return buildConfigTree(stack);
 	}
@@ -227,7 +67,7 @@ public class ConfigUtil {
 		// ====================== parse initial ========================= //
 		Stack<ConfigItem> stack = new Stack<ConfigItem>();
 		// FIXME: 栈用于缓存所有行，长度应该可变
-		stack.init(new ConfigItem[30]);
+		stack.init(new ArrayList<ConfigItem>());
 
 		// root 节点，一个配置文件中的多个配置节点作为其子节点，无值，处于 -1 层
 		ConfigItem root = new ConfigItem("root");
@@ -298,7 +138,7 @@ public class ConfigUtil {
 	// ============================= 退栈，挂载 ============================= //
 	private static List<ConfigItem> buildConfigTree(Stack<ConfigItem> stack) {
 		Stack<ConfigItem> cacheStack = new Stack<ConfigItem>();
-		cacheStack.init(new ConfigItem[30]);
+		cacheStack.init(new ArrayList<ConfigItem>());
 
 		ConfigItem cfg = null;
 		while ((cfg = stack.pop()) != null) {
@@ -353,10 +193,10 @@ public class ConfigUtil {
 	 * @author jianxinliu
 	 */
 	private static class Stack<T> {
-		private T[] ele;
+		private List<T> ele;
 		private int top = -1;
 
-		public void init(T[] instance) {
+		public void init(List<T> instance) {
 			this.ele = instance;
 		}
 
@@ -367,7 +207,8 @@ public class ConfigUtil {
 		 * @return
 		 */
 		public int push(T el) {
-			this.ele[++top] = el;
+			this.ele.add(el);
+			top++;
 			return top;
 		}
 
@@ -375,14 +216,14 @@ public class ConfigUtil {
 			if (top < 0) {
 				return null;
 			}
-			return this.ele[top--];
+			return this.ele.remove(top--);
 		}
 
 		public T getTop() {
 			if(top < 0){
 				return null;
 			}
-			return this.ele[top];
+			return this.ele.get(top);
 		}
 
 		public int getTopPtr() {
@@ -405,7 +246,7 @@ public class ConfigUtil {
 			if(idx < 0){
 				return null;
 			}
-			return this.ele[idx];
+			return this.ele.get(idx);
 		}
 
 		public List<T> popAll() {
@@ -420,7 +261,7 @@ public class ConfigUtil {
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("Stack [ele=").append(Arrays.toString(ele)).append(", top=").append(top).append("]");
+			builder.append("Stack [ele=").append(Arrays.toString(ele.toArray())).append(", top=").append(top).append("]");
 			return builder.toString();
 		}
 	}

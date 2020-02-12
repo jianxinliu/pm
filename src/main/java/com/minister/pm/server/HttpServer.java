@@ -27,7 +27,6 @@ public class HttpServer {
 	// 即时初始化
 	private static HttpServer me = new HttpServer();
 	private static Context ctx;
-	private static final int PORT = PMConfig.getPort();
 
 	private HttpServer() {
 	}
@@ -39,13 +38,10 @@ public class HttpServer {
 	public void run(Context context) throws IOException {
 		ctx = context;
 
-		//TODO:  从配置文件拿
-//		int PORT = PMConfig.port;
+		int PORT = PMConfig.port;
 
 		ServerSocketChannel ssc = ServerSocketChannel.open();
-		ssc.socket().bind(new InetSocketAddress(MagicWords.HOST.getName(), PORT));// listen
-																					// at
-																					// 127.0.0.1:8080
+		ssc.socket().bind(new InetSocketAddress(MagicWords.HOST.getName(), PORT));
 		logger.info("3. Server listening on {}:{}....\n", MagicWords.HOST.getName(), PORT);
 		while (true) {
 			SocketChannel socket = ssc.accept();

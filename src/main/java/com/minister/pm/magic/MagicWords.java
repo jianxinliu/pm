@@ -28,7 +28,9 @@ public enum MagicWords {
 	LIST_PREFIX("- ", 10), 
 	COMMENT("# ", 11), 
 	LIST_LEVEL("LIST", 30),
-	;
+	
+	LIST_TYPE_ARRAY("ARRAY",13),
+	LIST_TYPE_JUL("java.util.List",14);
 
 	private String name;
 	private int index;

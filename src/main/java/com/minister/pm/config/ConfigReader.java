@@ -78,11 +78,12 @@ public class ConfigReader {
 			// 解析配置文件
 			List<ConfigItem> configItems = null;
 			try {
-				configItems = ConfigUtil.parseYml2(config_file_path);
+				configItems = ConfigUtil.parseYml(config_file_path);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			if (configItems != null) {
+//				System.out.println("parse result:");
 //				configItems.forEach(cfg -> {
 //					System.out.println(cfg.format());
 //				});
