@@ -4,12 +4,12 @@
 
 ## 功能：
 
-- 内置简易 Web 服务器,基于 NIO 实现。（待完善）（Server）
-- 内置内存数据库，也可能是对象存储（待实现）（Ship,DSO（data store object））
-- 前端 Mock Server,基于配置的路由和响应（待实现）
-- json 解析器（待实现）
-- 日志打印（Almost Done）
-- yml 格式的配置文件的读取及应用
+- [x] 内置简易 Web 服务器,基于 NIO 实现。（待完善）（Server）
+- [ ] 内置内存数据库，也可能是对象存储（待实现）（Ship,DSO（data store object））
+- [ ] 前端 Mock Server,基于配置的路由和响应（待实现）
+- [ ] json 解析器（待实现）
+- [x] 日志打印(Almost Done)
+- [x] yml 格式的配置文件的读取及应用
 
 ### 简易 Web 服务器
 
@@ -39,12 +39,11 @@ json 解析器完成之后，使用 json 格式持久化数据。
 todo:
 - [] 日志输出地的选择，可以支持在配置文件中配置、
 
-### Config（Doing）
+### Config（Done）
 
 - 默认部分配置
 - 类 yml 格式文件解析支持
 - 配置注入
-
 
 ## How to Start
 
@@ -55,11 +54,9 @@ todo:
 ```java
 @PmApplication
 public class PmTestApplication {
-
 	public static void main(String[] args) {
 		PrimeMinister.run();
-	}
-	
+	}	
 }
 ```
 
