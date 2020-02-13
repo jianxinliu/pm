@@ -1,8 +1,10 @@
 package com.minister.pm.core;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,21 +40,65 @@ public class Context {
 	 * Map<clz.getTypeName(), componentInstance>
 	 */
 	public Map<String, Object> components = new HashMap<String, Object>();
-	
+
+	public Remedy remedy = Remedy.getRemedy();
+
+	/**
+	 * 用于补救时的数据存储
+	 * 
+	 * @author jianxinliu
+	 *
+	 */
+	static class Remedy {
+		private static final Remedy remedy = new Remedy();
+
+		private Remedy() {
+		}
+
+		public static Remedy getRemedy() {
+			return remedy;
+		}
+
+		/**
+		 * 用于临时存储在类扫描阶段没有注入到的组件，待扫描完成一次性补救注入<br>
+		 * fieldsNeedInject:存储需要注入组件的属性 InjectCompnent：存储 fieldsNeedInject 对应位置属性需注入的组件
+		 */
+		private List<Field> fieldsNeedInject = new ArrayList<Field>();
+		private List<Class<?>> injectCompnent = new ArrayList<Class<?>>();
+
+		public void addTempComponentName(Field f, Class<?> name) {
+			fieldsNeedInject.add(f);
+			injectCompnent.add(name);
+		}
+
+		public int getSize() {
+			return fieldsNeedInject.size();
+		}
+
+		public Field getField(int idx) {
+			return fieldsNeedInject.get(idx);
+		}
+
+		public Class<?> getComponent(int idx) {
+			return injectCompnent.get(idx);
+		}
+	}
+
 	/**
 	 * simple beans map.</br>
 	 * Map<a,b>.</br>
-	 * 	a should be bean name,b should be bean obejct or bean value.</br>
+	 * a should be bean name,b should be bean obejct or bean value.</br>
 	 * Bean name default to be variable name.
 	 */
-	public Map<String,Object> beans = new HashMap<String,Object>();
-	
+	public Map<String, Object> beans = new HashMap<String, Object>();
+
 	/**
 	 * 全局配置项,多种配置，如： dev,default,product...</br>
 	 * Map<String,List<ConfigItem>> => Map<configName,List<ConfigItem>><br>
 	 * 先简化为List<ConfigItem>
 	 */
-//	public Map<String,List<ConfigItem>> configObjects = new HashMap<String,List<ConfigItem>>();
+	// public Map<String,List<ConfigItem>> configObjects = new
+	// HashMap<String,List<ConfigItem>>();
 	public List<ConfigItem> configObjects = new ArrayList<ConfigItem>();
 
 	/**
@@ -111,12 +157,18 @@ public class Context {
 	 */
 	public String letHandlerInvoke(String url, HttpMethod method) {
 		// TODO: 暂时统一把返回值作为 String
-		logger.info("URL:{}\n", url);
+		logger.info("URL:{}", url);
 		String ret = "";
+		if(url == null){
+			return StatuCode.NOT_FOUND.getName();
+		}
+		// URL 是否命中，若未命中，则返回 404
+		boolean urlNotHit = true;
 		for (Entry<String, String> entry : this.mappers.entrySet()) {
 			String k = entry.getKey(), v = entry.getValue();
 			// 路由直接匹配，需要完全匹配
-			if (url != null && url.equals(k)) {
+			if (url.equals(k)) {
+				urlNotHit = false;
 				// 拆分 value -> handleClassName:methodName:requestMethod
 				String[] split = v.split(":");
 				// 如果请求方法不对，则不是这个处理器处理
@@ -129,7 +181,7 @@ public class Context {
 					}
 				} else {
 					// 请求方法正确，开始实例化处理器并且调用
-					
+
 					String clazz = split[0], handlerMethod = split[1];
 					try {
 						Object obj = this.components.get(clazz);
@@ -149,22 +201,27 @@ public class Context {
 						// TODO： 分析需要抛出的异常，根据异常构建响应码
 					} catch (NoSuchMethodException e) {
 						logger.error(e);
-						ret = StatuCode.SERVER_FAIL.getName();
+						ret = StatuCode.SERVER_FAIL.getCode();
 					} catch (SecurityException e) {
 						logger.error(e);
-						ret = StatuCode.SERVER_FAIL.getName();
+						ret = StatuCode.SERVER_FAIL.getCode();
 					} catch (IllegalAccessException e) {
 						logger.error(e);
-						ret = StatuCode.SERVER_FAIL.getName();
+						ret = StatuCode.SERVER_FAIL.getCode();
 					} catch (IllegalArgumentException e) {
 						logger.error(e);
-						ret = StatuCode.SERVER_FAIL.getName();
+						ret = StatuCode.SERVER_FAIL.getCode();
 					} catch (InvocationTargetException e) {
 						logger.error(e);
-						ret = StatuCode.SERVER_FAIL.getName();
+						ret = StatuCode.SERVER_FAIL.getCode();
 					}
 				}
 			}
+		}
+		// 路由未命中，404
+		if(urlNotHit){
+			logger.info("Not Found url:{}",url);
+			ret = StatuCode.NOT_FOUND.getCode();
 		}
 		return ret;
 	}

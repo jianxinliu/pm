@@ -86,7 +86,8 @@ public class HttpServer {
 		ret.setDate(new Date());
 		try {
 			data = dispatch.urlMapper();
-			if (data != StatuCode.SERVER_FAIL.getName()) {
+			// FIXME: 判断条件需修改，这样太简单。只要不是失败的 500，即认为成功，且返回值为返回数据
+			if (data != StatuCode.SERVER_FAIL.getCode()) {
 				ret.setStatu(StatuCode.SUCCESS);
 				ret.setData(data);
 			} else {

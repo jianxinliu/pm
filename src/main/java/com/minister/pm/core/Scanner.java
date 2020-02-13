@@ -43,7 +43,35 @@ public class Scanner {
 
 	public Context run() {
 		rootTrval(pwd);
+		// 补救未注入的组件
+		remedy();
 		return ctx;
+	}
+	
+	private void remedy(){
+		int size = ctx.remedy.getSize();
+		Object targetInstance = null;
+		Object newInstance = null;
+		Field f = null;
+		Class<?> type = null;
+		Class<?> clz = null;
+		for (int i = 0 ; i < size ; i++){
+			f = ctx.remedy.getField(i);
+			type = f.getType();
+			clz = ctx.remedy.getComponent(i);
+			targetInstance = ctx.components.get(type.getName());
+			newInstance = ctx.components.get(clz.getName());
+			f.setAccessible(true);
+			try {
+				if (f.get(newInstance) == null) {
+					f.set(newInstance, targetInstance);
+				}
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -166,6 +194,7 @@ public class Scanner {
 		// auto wire
 		Object newInstance = null;
 		Object targetInstance = null;
+		
 		Field[] fields = clz.getDeclaredFields();
 		for (int j = 0; j < fields.length; j++) {
 			Field f = fields[j];
@@ -180,8 +209,12 @@ public class Scanner {
 						f.set(newInstance, targetInstance);
 					}
 				} else {
-					// 注入错误
-					throw new InjectionException("目标组件:"+type.getName()+"不存在!");
+					// 需要的组件暂时未注入，后期补救
+					Class<?> type2 = f.getType();
+					Field f3 = fields[j];
+					String a = "";
+					ctx.remedy.addTempComponentName(f,clz);
+//					throw new InjectionException("目标组件:"+type.getName()+"不存在!");
 				}
 			}
 		}

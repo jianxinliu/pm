@@ -8,21 +8,21 @@ package com.minister.pm.server.bean;
  */
 public enum StatuCode {
 
-	NOT_FOUND("404", 404), SERVER_FAIL("500", 500), SUCCESS("200", 200);
+	NOT_FOUND("Not Found", "404"), SERVER_FAIL("Server Fail", "500"), SUCCESS("Success", "200");
 
 	private String name;
-	private int index;
+	private String code;
 
-	private StatuCode(String name, int index) {
+	private StatuCode(String name, String code) {
 		this.name = name;
-		this.index = index;
+		this.code = code;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public int getIndex() {
-		return index;
+	public String getCode() {
+		return code;
 	}
 }

@@ -69,7 +69,7 @@ public class ResponseBean {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(protocol).append(" ").append(statu.getName()).append("\n");
+		sb.append(protocol).append(" ").append(statu.getCode()).append("\n");
 		sb.append("Content-Type: ").append(contentType).append("\n");
 		sb.append("Content-Length: ").append(contentLen).append("\n");
 		sb.append("Date: ").append(date).append("\n");
