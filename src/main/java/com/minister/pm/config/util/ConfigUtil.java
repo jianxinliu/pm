@@ -7,15 +7,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import com.minister.pm.config.ConfigItem;
+import com.minister.pm.config.NodeType;
 import com.minister.pm.config.exception.NoSuchConfigException;
 import com.minister.pm.config.exception.ParseException;
 import com.minister.pm.config.exception.ValueAndSubItemConflictException;
 import com.minister.pm.config.exception.YamlSyntaxException;
-import com.minister.pm.config.yaml.NodeType;
 import com.minister.pm.log.Logger;
 import com.minister.pm.magic.ErrorReason;
 import com.minister.pm.magic.MagicWords;
@@ -32,7 +31,7 @@ public class ConfigUtil {
 	 * 将每一个有意义的行读入栈，此时栈中元素的层级，从底到顶是多个递增序列，一个文件都读完之后进行出栈，此时的操作说明如下：<br>
 	 * 1. 也就是逆向操作，将层级最低的项归于高一级的项<br>
 	 * 2. 同级元素暂时缓存成组，待碰到更低一级的元素再归于，注意同级元素和列表项（可分为列表栈和元素栈）<br>
-	 * 2. 用一个栈缓存临时数据<br>
+	 * 3. 用一个栈缓存临时数据<br>
 	 * 
 	 * <code>
 	 * level   config    
@@ -66,7 +65,6 @@ public class ConfigUtil {
 		logger.info(path);
 		// ====================== parse initial ========================= //
 		Stack<ConfigItem> stack = new Stack<ConfigItem>();
-		// FIXME: 栈用于缓存所有行，长度应该可变
 		stack.init(new ArrayList<ConfigItem>());
 
 		// root 节点，一个配置文件中的多个配置节点作为其子节点，无值，处于 -1 层
@@ -151,13 +149,14 @@ public class ConfigUtil {
 					// 更高层级的项即将入栈，从栈顶开始将顶部层级比其大的项出栈（到栈空或者遇到同层级的项为止）
 					ConfigItem temp = null;
 					int level = cfg.getLevel();
+					// 需退栈的元素个数，即兄弟节点个数
 					int cnt = 1;
 					while ((temp = cacheStack.get(cnt++)) != null) {
 						if (cfg.getLevel() >= temp.getLevel()) {
 							break;
 						}
 					}
-					// cnt - 2 :原始 cnt == 1 ，需减去；cnt++ 惯性又加一，需减去
+					// cnt - 2 : 原始 cnt == 1 ，需减去；cnt++ 惯性又加一，需减去
 					for (int i = 0; i < cnt - 2; i++) {
 						ConfigItem topCfg = cacheStack.pop();
 						// 挂载时注意项的类型
@@ -318,7 +317,7 @@ public class ConfigUtil {
 	/**
 	 * 从一行中获取解析过的 ConfigItem 对象<br>
 	 * 
-	 * 特别的，如果行中含有'# ',则1）'# '在行首：该行不传入；2）'# '在行中,则传入的line不包含
+	 * 特别的，如果行中含有'# ',则 1）'# '在行首：该行不传入；2）'# '在行中,则传入的line不包含
 	 * '#'及其后面的内容，实际上变成了普通行
 	 * 
 	 * @param line

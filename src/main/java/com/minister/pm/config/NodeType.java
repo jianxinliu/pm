@@ -1,4 +1,4 @@
-package com.minister.pm.config.yaml;
+package com.minister.pm.config;
 
 /**
  * <code>
