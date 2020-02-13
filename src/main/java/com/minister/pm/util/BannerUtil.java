@@ -19,14 +19,12 @@ import com.minister.pm.log.Logger;
 public class BannerUtil {
 
 	private final static String defaultBanner = "/banner_alpha.txt";
-	private final static String userDir = System.getProperty("user.dir");
 	private static Logger logger = Logger.getLogger(BannerUtil.class);
-
+	
 	public static void printBanner() {
-		FileInputStream finStream = null;
-		try {
-			finStream = new FileInputStream(new File(userDir + defaultBanner));
-			FileChannel channel = finStream.getChannel();
+		String path = PMFileIOUtil.getPMFilePath(defaultBanner);
+		try (FileInputStream finStream = new FileInputStream(new File(path));
+				FileChannel channel = finStream.getChannel();) {
 			ByteBuffer buffer = ByteBuffer.allocate(10);
 			ByteBuffer[] buffers = new ByteBuffer[100];
 			for (int i = 0; i < buffers.length; i++) {
@@ -43,12 +41,10 @@ public class BannerUtil {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				finStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
+	}
+
+	public static void main(String[] args) {
+		printBanner();
 	}
 }

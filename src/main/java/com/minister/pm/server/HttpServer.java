@@ -39,6 +39,9 @@ public class HttpServer {
 		ctx = context;
 
 		int PORT = PMConfig.port;
+		if(PORT == 0){
+			PORT = 8079;
+		}
 
 		ServerSocketChannel ssc = ServerSocketChannel.open();
 		ssc.socket().bind(new InetSocketAddress(MagicWords.HOST.getName(), PORT));

@@ -1,7 +1,5 @@
 package com.minister.pm.config;
 
-import java.util.List;
-
 import com.minister.pm.define.config.Configuration;
 import com.minister.pm.define.config.Value;
 
@@ -17,16 +15,16 @@ public class PMConfig {
 	@Value(path = "server.port")
 	public static int port;
 	
-	@Value(path = "pm.tab")
-	public static int tab;
-	
-	@Value(path = "spring.dataSource.urls")
-	public static String[] urls;
-	
-	@Value(path = "spring.dataSource.ids")
-	public static List<Integer> ids;
-	
-	@Value(path = "spring.dataSource.urls")
-	public static List<String> urls2;
+//	@Value(path = "pm.tab")
+//	public static int tab;
+//	
+//	@Value(path = "spring.dataSource.urls")
+//	public static String[] urls;
+//	
+//	@Value(path = "spring.dataSource.ids")
+//	public static List<Integer> ids;
+//	
+//	@Value(path = "spring.dataSource.urls")
+//	public static List<String> urls2;
 	
 }

@@ -62,7 +62,7 @@ public class ConfigUtil {
 	}
 
 	private static Stack<ConfigItem> load(String path) throws YamlSyntaxException {
-		logger.info(path);
+//		logger.debug(path);
 		// ====================== parse initial ========================= //
 		Stack<ConfigItem> stack = new Stack<ConfigItem>();
 		stack.init(new ArrayList<ConfigItem>());

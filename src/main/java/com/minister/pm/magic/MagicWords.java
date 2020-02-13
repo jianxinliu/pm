@@ -1,7 +1,5 @@
 package com.minister.pm.magic;
 
-import java.io.File;
-
 /**
  * 全局魔法值
  * 
@@ -9,17 +7,17 @@ import java.io.File;
  * @author jianxinliu
  */
 public enum MagicWords {
-	DEFAULT_CONFIG_FILE_NAME("defaultConfig.yml", 0),
-	DEFAULT_CONFIG_PATH(File.separator + "com" + File.separator +
-			"minister" + File.separator + "pm" + File.separator + 
-			"config" + File.separator + "defaultConfig.yml",1), 
+	DEFAULT_CONFIG_FILE_NAME("/defaultConfig.yml", 0),
+//	DEFAULT_CONFIG_PATH(File.separator + "com" + File.separator +
+//			"minister" + File.separator + "pm" + File.separator + 
+//			"config" + File.separator + "defaultConfig.yml",1), 
 	HOST("127.0.0.1", 2), 
 	PORT("8079", 3), 
 	TAB("    ", 4), 
 	CONFIG_SUFFUX("yml", 5), 
-	CONFIG_PREFIX_CONFIG("config", 6), 
-	CONFIG_PREFIX_APPLIOCATION("application", 7), 
-	CONFIG_PREFIX_BOOTSTRAP("bootstrap", 8),
+	CONFIG_PREFIX_CONFIG("config.yml", 6), 
+	CONFIG_PREFIX_APPLIOCATION("application.yml", 7), 
+	CONFIG_PREFIX_BOOTSTRAP("bootstrap.yml", 8),
 	
 	/**
 	 * ': '
