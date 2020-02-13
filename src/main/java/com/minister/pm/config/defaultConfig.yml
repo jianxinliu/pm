@@ -12,6 +12,9 @@ spring: # 测试数据
         urls: 
             - jdbc:mysql://localhost:3306/db
             - jdbc:oracle://localhost:1521/db
+        ids: 
+            - 3
+            - 5
 
 mydata: 123
 a: b

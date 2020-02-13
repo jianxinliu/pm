@@ -23,6 +23,9 @@ public class PMConfig {
 	@Value(path = "spring.dataSource.urls")
 	public static String[] urls;
 	
+	@Value(path = "spring.dataSource.ids")
+	public static List<Integer> ids;
+	
 	@Value(path = "spring.dataSource.urls")
 	public static List<String> urls2;
 	

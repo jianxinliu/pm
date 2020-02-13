@@ -1,18 +1,17 @@
 package com.minister.pm.core.handler;
 
-import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.minister.pm.config.ConfigItem;
-import com.minister.pm.config.PMConfig;
 import com.minister.pm.config.exception.NoSuchConfigException;
 import com.minister.pm.config.util.ConfigUtil;
 import com.minister.pm.core.Context;
 import com.minister.pm.define.config.Value;
 import com.minister.pm.log.Logger;
-import com.minister.pm.magic.MagicWords;
 
 /**
  * <code>@Configuration</code> 注解的处理类
@@ -22,12 +21,7 @@ import com.minister.pm.magic.MagicWords;
  */
 public class ConfigurationHandler {
 
-	/**
-	 * FIXME: 设置值时进行类型转换,特别注意列表值
-	 * 
-	 * @param clz
-	 */
-	public static void handler(Context ctx, Class clz) {
+	public static void handler(Context ctx, Class<?> clz) {
 		Field[] fields = clz.getFields();
 		for (Field field : fields) {
 			String path = field.getDeclaredAnnotation(Value.class).path();
@@ -44,23 +38,21 @@ public class ConfigurationHandler {
 					} else {
 						// 列表转化，只支持数组和 List
 						Class<?> type = field.getType();
-						int listType = 0;
-						String eleType = null;
-						if (type.getClass().isInstance(java.util.List.class)) {
-							if(type.getTypeName().endsWith("[]")){
-								listType = MagicWords.LIST_TYPE_ARRAY.getIndex();
-								eleType = type.getComponentType().getTypeName();
-							}else{
-								listType = MagicWords.LIST_TYPE_JUL.getIndex();
-								Class<?> componentType = type.getComponentType();
-								eleType = type.getComponentType().getTypeName();
+						if (type.isArray() || (type.getClass().isInstance(java.util.List.class))) {
+							if (type.getTypeName().endsWith("[]")) {
+								Object castArray = castArray(type.getComponentType(), cfgValue);
+								field.set(null, castArray);
+							} else {
+								Type genericType = field.getGenericType();
+								if (genericType instanceof ParameterizedType) {
+									ParameterizedType pt = (ParameterizedType) genericType;
+									// 得到泛型里的 class 类型对象
+									Class<?> eleType = (Class<?>) pt.getActualTypeArguments()[0];
+									Object castList = castList(eleType, cfgValue);
+									field.set(null, castList);
+								}
 							}
 						}
-						Object castList = castList(listType, eleType, cfgValue);
-						field.set(null, castList);
-						// java.lang.String[]
-						// java.util.List<java.lang.String>
-						System.out.println(type.getTypeName());
 					}
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
@@ -118,16 +110,32 @@ public class ConfigurationHandler {
 		return ret;
 	}
 
+	
 	/**
-	 * 1. 统一按List处理，最后若是数组再转<br>
-	 * 2. 列表内元素也需要逐个转换为对应类型
-	 * @param ListType
 	 * @param type
 	 * @param values
 	 * @return
 	 */
-	private static <T> T castList(int ListType, String type, List<String> values) {
-		return null;
+	@SuppressWarnings("unchecked")
+	private static <T> List<T> castList(Type type, List<String> values) {
+		List<T> ret = new ArrayList<T>();
+		values.forEach(v -> {
+			T cast = (T) cast(type, v);
+			ret.add(cast);
+		});
+		return (List<T>) ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> T castArray(Class<?> type, List<String> values) {
+		Object array = Array.newInstance(type, values.size());
+		for (int i = 0; i < values.size(); i++) {
+			String v = values.get(i);
+			T cast = (T) cast(type, v);
+			Array.set(array, i, cast);
+		}
+		return (T) array;
+
 	}
 
 	private static Logger logger = Logger.getLogger(ConfigurationHandler.class);

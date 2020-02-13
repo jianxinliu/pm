@@ -11,7 +11,6 @@ import com.minister.pm.core.Context;
 import com.minister.pm.core.handler.ConfigurationHandler;
 import com.minister.pm.log.Logger;
 import com.minister.pm.magic.MagicWords;
-import com.minister.pm.util.StringUtil;
 
 /**
  * yml 配置文件的单个配置项，包含多层子配置项，如：</br>
