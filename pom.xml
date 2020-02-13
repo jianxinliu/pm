@@ -1,14 +1,29 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.minister</groupId>
 	<artifactId>pm</artifactId>
+	<packaging>jar</packaging>
 	<version>0.0.1</version>
 	<name>PrimeMinister</name>
-	<description>PrimeMinister-a tool collection of web development</description>
+	<description>
+	   PrimeMinister——a Web framework which imitate SpringBoot, and tool collection for Web development. NOTE:DO NOT use in production environment!
+	</description>
 
-	<properties>
-		<java.version>1.8</java.version>
-	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+
 </project>

@@ -61,8 +61,7 @@ public class Scanner {
 						String javaPath = convertToJavaPath(path);
 						try {
 							Class<?> clz = Class.forName(javaPath);
-							// FIXME: 删除
-							logger.info(clz.getName()); 
+							logger.debug(clz.getName()); 
 							findClassAnnotation(clz);
 						} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InjectionException e) {
 							e.printStackTrace();
