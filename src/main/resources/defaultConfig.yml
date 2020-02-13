@@ -1,0 +1,5 @@
+# pm 默认配置
+server: 
+    port: 8079
+pm: 
+    tab: 4  # 默认 tab 的数量
