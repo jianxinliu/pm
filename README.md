@@ -53,7 +53,7 @@ todo:
 * 项目根目录的启动类。
 
 ```java
-@App
+@PmApplication
 public class PmTestApplication {
 
 	public static void main(String[] args) {
@@ -98,19 +98,40 @@ public class Service {
 
 ### 启动效果
 
-1. 控制台输出
+1. 控制台输出(另一个测试工程的输出，略微有出入。此处的输出是修改过后的，以此为准。)
 
 ```
-2019-03-29 21:08:04.245   INFO     --- [c.m.p.c.Scanner               ] : pmtest.Service
-2019-03-29 21:08:04.297   INFO     --- [c.m.p.c.Scanner               ] : pmtest.PmTestApplication
-2019-03-29 21:08:04.326   INFO     --- [c.m.p.c.Scanner               ] : pmtest.Controller
-2019-03-29 21:08:04.354   INFO     --- [c.m.p.c.Scanner               ] : Mapped url:[/pm/index] to :pmtest.Controller.getIndex()
-2019-03-29 21:08:04.356   INFO     --- [c.m.p.c.Scanner               ] : Mapped url:[/pm/hello] to :pmtest.Controller.hello()
-2019-03-29 21:08:04.357   INFO     --- [c.m.p.c.Scanner               ] : Mapped url:[/pm/user] to :pmtest.Controller.getUser()
-2019-03-29 21:08:04.362   INFO     --- [c.m.p.c.Scanner               ] : Mapped url:[/pm/index] to :pmtest.Controller.getIndex()
-2019-03-29 21:08:04.362   INFO     --- [c.m.p.c.Scanner               ] : Mapped url:[/pm/hello] to :pmtest.Controller.hello()
-2019-03-29 21:08:04.368   INFO     --- [c.m.p.c.Scanner               ] : Mapped url:[/pm/user] to :pmtest.Controller.getUser()
-2019-03-29 21:08:04.400   INFO     --- [c.m.p.s.HttpServer            ] : Server listening on 127.0.0.1:8080....
+          _____                    _____          
+         /\    \                  /\    \         
+        /::\    \                /::\____\        
+       /::::\    \              /::::|   |        
+      /::::::\    \            /:::::|   |        
+     /:::/\:::\    \          /::::::|   |        
+    /:::/__\:::\    \        /:::/|::|   |        
+   /::::\   \:::\    \      /:::/ |::|   |        
+  /::::::\   \:::\    \    /:::/  |::|___|______  
+ /:::/\:::\   \:::\____\  /:::/   |::::::::\    \ 
+/:::/  \:::\   \:::|    |/:::/    |:::::::::\____\
+\::/    \:::\  /:::|____|\::/    / ~~~~~/:::/    /
+ \/_____/\:::\/:::/    /  \/____/      /:::/    / 
+          \::::::/    /               /:::/    /  
+           \::::/    /               /:::/    /   
+            \::/____/               /:::/    /    
+             ~~                    /:::/    /     
+                                  /:::/    /      
+                                 /:::/    /       
+                                 \::/    /        
+                                  \/____/       
+
+                                  
+2020-02-13 23:03:26.197   INFO     --- [c.m.p.c.ConfigReader          ] : Config file not found,apply default config!
+2020-02-13 23:03:26.211   INFO     --- [c.m.p.c.PrimeMinister         ] : 1. Config ready!
+2020-02-13 23:03:26.296   DEBUG    --- [c.m.p.c.Scanner               ] : com.pm.usepm.controller.HelloController
+2020-02-13 23:03:26.313   INFO     --- [c.m.p.c.Scanner               ] : Mapped url:[/hello] to :com.pm.usepm.controller.HelloController.hello()
+2020-02-13 23:03:26.321   DEBUG    --- [c.m.p.c.Scanner               ] : com.pm.usepm.service.HelloService
+2020-02-13 23:03:26.326   DEBUG    --- [c.m.p.c.Scanner               ] : com.pm.usepm.UsePm
+2020-02-13 23:03:26.327   INFO     --- [c.m.p.c.PrimeMinister         ] : 2. Context ready!
+2020-02-13 23:03:26.336   INFO     --- [c.m.p.s.HttpServer            ] : 3. Server listening on 127.0.0.1:8079....
 ```
 
 2. 访问
@@ -155,7 +176,10 @@ logger.info("hello,{}","world");
 
 ### config
 
-支持 yml 格式的配置文件。配置读取例子：
+支持类似 yml 格式的配置文件。配置读取例子：
+
+`src/main/resources`下有 `application.yml` , `bootstrap.yml` 或 `config.yml` 三者之一都可被读取，优先级同上列出顺序。
+若没有，则应用 pm 内置配置。
 
 ```java
 @Configuration
@@ -163,9 +187,6 @@ public class PMConfig {
 
     @Value(path = "server.port")
     public static String port;
-    
-    @Value(path = "banner")
-    public static String defaultBanner;
     
 }
 

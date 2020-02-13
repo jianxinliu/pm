@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * <pre>
- * @App
+ * @PmApplication
  * </pre>
  * 
  * annotation is to help package Scanner to find the project base path
@@ -21,6 +21,6 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface App {
+public @interface PmApplication {
 
 }

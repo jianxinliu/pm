@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 import com.minister.pm.config.ConfigReader;
 import com.minister.pm.core.exception.InjectionException;
 import com.minister.pm.core.handler.ConfigurationHandler;
-import com.minister.pm.define.App;
+import com.minister.pm.define.PmApplication;
 import com.minister.pm.define.Autowired;
 import com.minister.pm.define.Component;
 import com.minister.pm.define.RestController;
@@ -145,7 +145,7 @@ public class Scanner {
 					logger.info("Mapped url:[{}] to :{}.{}()", url, clz.getName(), m.getName());
 				}
 			}
-		} else if (clz.isAnnotationPresent(App.class)) {
+		} else if (clz.isAnnotationPresent(PmApplication.class)) {
 
 		} else if(clz.isAnnotationPresent(Configuration.class)){
 			ConfigurationHandler.handler(ctx,clz);

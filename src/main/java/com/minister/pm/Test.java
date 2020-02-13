@@ -1,7 +1,7 @@
 package com.minister.pm;
 
 import com.minister.pm.core.PrimeMinister;
-import com.minister.pm.define.App;
+import com.minister.pm.define.PmApplication;
 
 /**
  *
@@ -9,7 +9,7 @@ import com.minister.pm.define.App;
  * @Date Feb 25, 2019 12:15:21 AM
  *
  */
-@App
+@PmApplication
 public class Test {
 	public static void main(String[] args) {
 		PrimeMinister.run();
