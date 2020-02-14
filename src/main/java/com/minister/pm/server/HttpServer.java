@@ -39,8 +39,9 @@ public class HttpServer {
 		ctx = context;
 
 		int PORT = PMConfig.port;
+		// FIXME: 临时补救措施。客工程中获取不到值。主工程可以
 		if(PORT == 0){
-			PORT = 8079;
+			PORT = 8888;
 		}
 
 		ServerSocketChannel ssc = ServerSocketChannel.open();

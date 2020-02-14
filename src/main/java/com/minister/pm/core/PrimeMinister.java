@@ -38,11 +38,11 @@ public class PrimeMinister {
 		}
 		logger.info("1. Config ready!");
 		// test
-		for (Entry<String, Object> ent : context.beans.entrySet()) {
-			String key = ent.getKey();
-			Object value = ent.getValue();
-			logger.info("entity:key={},value={}", key, value);
-		}
+//		for (Entry<String, Object> ent : context.beans.entrySet()) {
+//			String key = ent.getKey();
+//			Object value = ent.getValue();
+//			logger.debug("entity:key={},value={}", key, value);
+//		}
 
 		// read @App annotation
 		context.start();

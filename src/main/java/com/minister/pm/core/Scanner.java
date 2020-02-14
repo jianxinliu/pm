@@ -145,6 +145,7 @@ public class Scanner {
 			pUrl = classReqMap.value();
 		}
 		// 当前类体上是否由 URLMapping 注解
+		
 		if (clz.isAnnotationPresent(Component.class)) {
 			ctx.components.put(clz.getTypeName(), clz.newInstance()); // Component 组件集合
 		} else if (clz.isAnnotationPresent(RestController.class)) {
@@ -176,6 +177,7 @@ public class Scanner {
 		} else if (clz.isAnnotationPresent(PmApplication.class)) {
 
 		} else if(clz.isAnnotationPresent(Configuration.class)){
+			ctx.components.put(clz.getTypeName(), clz.newInstance()); // Component 组件集合
 			ConfigurationHandler.handler(ctx,clz);
 		}
 		// 将当前类中需要注入的组件注入
