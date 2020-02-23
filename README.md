@@ -59,7 +59,7 @@ todo:
 
 将代码编译后打成 jar 包（mvn install 到本地），导入作为依赖，之后便可像 Spring Boot 一样进行 Web 开发。
 
-- 测试工程 POM 文件
+- 应用工程的依赖导入
 
 ```xml
 <dependency>
