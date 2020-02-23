@@ -2,19 +2,26 @@
 
 这是一个用于学习的简易 MVC 框架，尽量基于 JDK 实现，最少依赖。
 
+玩具系列之一。
+
 ## 功能：
 
 - [x] 内置简易 Web 服务器,基于 NIO 实现。（待完善）（Server）
 - [ ] 内置内存数据库，也可能是对象存储（待实现）（Ship,DSO（data store object））
 - [ ] 前端 Mock Server,基于配置的路由和响应（待实现）
-- [ ] json 解析器（待实现）
+- [ ] json 解析器（待实现，拟使用类似 yml 解析的方式实现）
 - [x] 日志打印(Almost Done)
-- [x] yml 格式的配置文件的读取及应用
+- [x] 类 yml 格式的配置文件的读取及应用
 
 ### 简易 Web 服务器
 
-基于 NIO 实现，实现了自己的路由，自己的注解。
+基于 NIO 实现，实现了路由，注解。
 
+也可考虑函数式的路由定义：
+
+```java
+router.reg('/index',(req,resp) -> {})
+```
 
 ### 内存数据库（待实现）
 
@@ -22,11 +29,13 @@
 
 json 解析器完成之后，使用 json 格式持久化数据。
 
+拟直接通过 [goredis](https://github.com/jianxinliu/goredis ) 的编程语言客户端连接 goredis，不再重新基于 Java 实现。
+
 
 ### 前端 Mock Server（待实现）
 
 - 基于配置的路由和响应，给前后端提供统一的交互接口。方便的切换到后端 Server.
-- 是前后端交互的协议（基于映射），能为前端和后端提供支持，为前段提供响应能力，为后端提供请求能力
+- 是前后端交互的协议（基于映射），能为前端和后端提供支持，为前端提供响应能力，为后端提供请求能力
 - 提供 Web 界面
 - 也可以作为微服务之间的 Mock Server.
 
@@ -37,7 +46,8 @@ json 解析器完成之后，使用 json 格式持久化数据。
 - 支持短类名
 
 todo:
-- [ ] 日志输出地的选择，可以支持在配置文件中配置、
+- [ ] 日志输出地的选择，可以支持在配置文件中配置
+- [ ] 日志级别的选择与禁止（如正式运行时禁止 debug 级别的日志输出）
 
 ### Config（Done）
 
@@ -47,7 +57,17 @@ todo:
 
 ## How to Start
 
-将代码编译后打成 jar 包，作为依赖，之后便可像 Spring Boot 一样进行 Web 开发。
+将代码编译后打成 jar 包（mvn install 到本地），导入作为依赖，之后便可像 Spring Boot 一样进行 Web 开发。
+
+- 测试工程 POM 文件
+
+```xml
+<dependency>
+    <groupId>com.minister</groupId>
+    <artifactId>pm</artifactId>
+    <version>0.0.1</version>
+</dependency>
+```
 
 * 项目根目录的启动类。
 

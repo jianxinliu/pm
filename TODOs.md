@@ -17,10 +17,13 @@ json 解析器的实现
 - [ ] IoC 的实现
 - [x] 注解扫描，全包扫描注解，分类存放到 Context
 - [ ] Context 的完善
+- [ ] 注解扫描&注入逻辑优化
 
 ## Server
 
 - [x] 请求对象的封装
+- [ ] Session & Cookie
+- [ ] 简易静态文件的支持
 
 ## Ship
 
