@@ -2,9 +2,11 @@ package com.minister.pm.mq;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @date 2020年3月25日 上午9:27:24
@@ -86,6 +88,20 @@ public class Broker {
 			if (push)
 				push(t);
 			return true;
+		}
+	}
+	
+	/**
+	 * 广播
+	 * @param m
+	 */
+	public void broadcast(Message m){
+		Iterator<String> iterator = this.subscribers.keySet().iterator();
+		while(iterator.hasNext()) {
+			List<Subscriber> subs = this.subscribers.get(iterator.next());
+			subs.forEach(s -> {
+				s.recive(m);
+			});
 		}
 	}
 

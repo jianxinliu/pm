@@ -58,6 +58,7 @@ todo:
 ### MessageQueue
 
 - pub-sub，消息推送&拉取
+- 广播
 
 ## How to Start
 
@@ -231,4 +232,7 @@ pub.publishAndPush(new Message("jianxin", "hello"));
 Publisher pub = new Publisher(b);
 pub.publish(new Message("jianxin", "hello"));
 sub.consume();
+
+// broadcast
+pub.broadcase(new Message("abc", "mq!"));
 ```

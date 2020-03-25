@@ -19,4 +19,8 @@ public class Publisher {
 	public void publish(Message m) {
 		this.b.publish(m, false);
 	}
+	
+	public void broadcase(Message m){
+		this.b.broadcast(m);
+	}
 }

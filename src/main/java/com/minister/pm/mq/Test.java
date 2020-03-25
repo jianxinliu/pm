@@ -82,5 +82,7 @@ public class Test {
 				}
 			}
 		}, "Reader2").start();
+		
+		pub.broadcase(new Message("abc", "mq!"));
 	}
 }
