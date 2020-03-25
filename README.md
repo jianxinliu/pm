@@ -55,6 +55,10 @@ todo:
 - 类 yml 格式文件解析支持
 - 配置注入
 
+### MessageQueue
+
+- pub-sub，消息推送&拉取
+
 ## How to Start
 
 将代码编译后打成 jar 包（mvn install 到本地），导入作为依赖，之后便可像 Spring Boot 一样进行 Web 开发。
@@ -69,7 +73,7 @@ todo:
 </dependency>
 ```
 
-* 项目根目录的启动类。
+- 项目根目录的启动类。
 
 ```java
 @PmApplication
@@ -80,7 +84,7 @@ public class PmTestApplication {
 }
 ```
 
-* Controller 与依赖注入
+- Controller 与依赖注入
 
 ```java
 @URLMapping("/pm")
@@ -102,7 +106,7 @@ public class Controller {
 }
 ```
 
-* 组件
+- 组件
 
 ```java
 @Component()
@@ -212,10 +216,19 @@ PMConfig.port;
 ```
 
 
+### MQ
 
+```java
+// subscriber
+Subscriber sub = new Subscriber(b);
+sub.subscribe("jianxin");
 
+// publisher （push）
+Publisher pub = new Publisher(b);
+pub.publishAndPush(new Message("jianxin", "hello"));
 
-
-```
-
+// or publisher (poll)
+Publisher pub = new Publisher(b);
+pub.publish(new Message("jianxin", "hello"));
+sub.consume();
 ```
